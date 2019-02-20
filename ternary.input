@@ -1,0 +1,61 @@
+30 30      Na, Nb for the diblock
+0.0  5     Volume fraction, chain length for A homopolymers
+0.0   1     Volume fraction, chain length for B homopolymers
+0.0 5     Volume fraction, chain length for C homopolymers
+1.0 1.0    little_a, bB
+1 0.5 50.0 2.0 semiflex flag, bond_eq, bond_k, lambda
+
+0.005   Volume fraction nanoparticles
+1.5     Rp, nanoparticle radius
+0.5     Xi, nanoparticle interface width
+1       particle_type flag (0 = neutral, 1 = type B)
+0.0    particle epsilon
+
+3.4863          rho0, in units normalized by diblock properties
+4.0 4.0 1.00  chiAB, chiAC, chiBC
+20.0          kappa
+4.0           mu
+1.0 1.0 1.0   Monomer mobility/diffusion coefficients
+
+0.0   Lb, Bjerrum length
+0.0   Charge "smearing" length
+0.0   Charge on first B bead of diblock
+0.0   Charge on all B beads of diblock
+0.0   Charge of individual C counterions
+
+27.0 49.0 81.0 Lx, Ly, Lz
+27 49 81   Nx, Ny, Nz
+0.003       time step
+1           grid interpolation order
+2.5       send_buff: size of the skin between parallel domains
+
+500001       simulation steps
+500         print frequency
+25000 500  sample_wait, sample_freq
+0           stress_frequency
+00       frame_frequency (0=no saving)
+10000    traj_frequency, frequency for writing .lammpstrj file
+2 20000      init_flag (0 = random, 1 = interface sim)
+
+
+
+##################################
+frame_frequency saves: store grid data in logarithmicly spaced 
+files. Will double the time between saves every time data
+is written. 
+
+send_buff: There's a skin layer where particles must be send to neighboring
+processors as ghost particles as part of the parallelization. This determines
+the size of that buffer. It should be longer than any expected bond length
+or dx * pme_order, whichever is greater.
+
+semiflex:
+flag turns on semiflexible b-blocks of the diblock. These use bonds with 
+finite equilibrium length (bond_eq), larger bond spring constant (bond_k)
+and an angle potential between three adjacent B monomers of the form:
+U_ang(\theta) = \lambda * ( 1 - cos(\theta_ijk) )
+
+init_flag:
+0 = random
+1 = interface simulation. C homopolymers in half of hte box, A homopolymers
+in the other half, and any diblocks are placed at the midpoint of the box.
