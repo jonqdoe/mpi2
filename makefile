@@ -20,6 +20,7 @@ SRCS = main.cpp array_utils.cpp die.cpp  random.cpp grid_utils.cpp \
 			 mpi_utils.cpp communicate_utils.cpp angles.cpp \
 			 orientation_utils.cpp ms_forces.cpp \
 			 pair_style.cpp pair_style_gaussian.cpp \
+			 molecule.cpp field_component.cpp \
        
        
 			 
