@@ -109,13 +109,17 @@ int main( int argc , char** argv ) {
     if ( step % print_freq == 0 || step == nsteps-1 ) {
       calc_Unb() ;
 
+      printf("making field components...\n"); fflush(stdout) ;
       FieldComponent A(ML), B(ML) ;
+      printf("done!\nDefining field components...\n"); fflush(stdout) ;
       for ( i=0 ; i<ML ; i++ ) {
         A.rho[i] = rho[0][i] ;
         B.rho[i] = rho[1][i];
       }
 
+      printf("done!\nsetting up Gaussian energy...\n"); fflush(stdout) ;
       Gaussian gauss_AB( chiAB/rho0, 2.0*a_squared, ML, A, B ) ;
+      printf("done!\nprinting to screen...\n"); fflush(stdout) ;
       cout << "Energied! " << gauss_AB.calc_energy() << " " << U_chiab_gg << endl;
       exit(0);
 

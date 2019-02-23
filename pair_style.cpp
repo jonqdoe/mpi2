@@ -8,6 +8,7 @@
 PairStyle::PairStyle(int alloc_size, FieldComponent A, FieldComponent B ) {
   int n_off_diag = Dim + (Dim*Dim-Dim)/2 ;
 
+  printf("setting up pair style!\n"); fflush(stdout) ;
   size = alloc_size ;
 
   u = ( double* ) calloc( alloc_size, sizeof(double) ) ;
@@ -23,7 +24,7 @@ PairStyle::PairStyle(int alloc_size, FieldComponent A, FieldComponent B ) {
     f_k[i] = ( complex<double>* ) calloc( alloc_size, sizeof(complex<double>) ) ;
   }
 
-
+  total_vir = ( double* ) calloc( n_off_diag, sizeof(double) ) ;
 
   // Vir stores the diagonal plus the off-diagonal terms
   // The term in parenthesis (Dim*Dim-Dim) will always be even
@@ -32,26 +33,51 @@ PairStyle::PairStyle(int alloc_size, FieldComponent A, FieldComponent B ) {
     vir_k[i] = ( complex<double>* ) calloc( alloc_size , sizeof(complex<double>) ) ;
   }
 
+
   // Pointers to the two density fields involved in this interaction
   rho1 = A.rho ;
   rho2 = B.rho ;
+  force1 = A.gradU ;
+  force2 = B.gradU ;
+  
+  printf("Finished setting up pair style!\n"); fflush(stdout) ;
 }
 
 
-double PairStyle::calc_all() {
+
+
+// Calculates the energy, virial, and gradU
+// fields for this pair style.
+void PairStyle::calc_all() {
   
-  int i ;
+  int i, j ;
   fftw_fwd( rho2, ktmp ) ;
 
+  // Energy calculation 
   for ( i=0 ; i<ML ; i++ ) 
-    ktmp[i] *= this->u_k[i] ;
+    ktmp2[i] = ktmp[i] * this->u_k[i] ;
 
-  fftw_back( ktmp, tmp ) ;
+  fftw_back( ktmp2, tmp ) ;
 
   for ( i=0 ; i<ML ; i++ ) 
     tmp[i] *= rho1[i] ;
 
-  return integrate( tmp ) ;
+  this->energy = integrate(tmp) ;
+
+
+  // Force calculation
+  for ( j=0 ; j<Dim ; j++ ) {
+    for ( i=0 ; i<ML ; i++ )
+      ktmp2[i] = ktmp[i] * this->f_k[j][i] ;
+
+    fftw_back( ktmp2, tmp ) ;
+
+    for ( i=0 ; i<ML ; i++ ) {
+      force1[j][i] += rho1[i] * tmp[i] ;
+      if ( rho1 != rho2 )
+        force2[j][i] += -rho1[i] * tmp[i] ;
+    }
+  }
 
 }
 
@@ -77,7 +103,8 @@ double PairStyle::calc_energy( ) {
   for ( i=0 ; i<ML ; i++ ) 
     tmp[i] *= rho1[i] ;
 
-  return integrate( tmp ) ;
+  this->energy = integrate(tmp) ;
+  return this->energy ;
 
 }
 
@@ -104,15 +131,17 @@ void PairStyle::setup_virial() {
       this->vir[j][i] = dr[j] * this->f[j][i] ;
     
     // X-Y shear component
-    vir[Dim][i] = dr[0] * this->f[1][i] ;
+    this->vir[Dim][i] = dr[0] * this->f[1][i] ;
 
     // Add x-z, y-z shear components if relevant
     if ( Dim == 3 ) {
-      vir[Dim+1][i] = dr[0] * this->f[2][i] ;
-      vir[Dim+2][i] = dr[1] * this->f[2][i] ;
+      this->vir[Dim+1][i] = dr[0] * this->f[2][i] ;
+      this->vir[Dim+2][i] = dr[1] * this->f[2][i] ;
     }
   }
 }
+
+
 
 
 

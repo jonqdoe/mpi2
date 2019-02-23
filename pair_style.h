@@ -8,8 +8,8 @@ class PairStyle {
     int size ;
   public:
     int type1, type2 ;
-    double *u, **f, **vir ;
-    double *rho1, *rho2 ;
+    double *u, **f, **vir, energy, *total_vir ;
+    double *rho1, *rho2, **force1, **force2 ;
     complex<double> *u_k, **f_k, **vir_k ;
 
     PairStyle( int, FieldComponent, FieldComponent ) ;
@@ -17,7 +17,7 @@ class PairStyle {
     
     double calc_energy() ;
     void setup_virial() ;
-    double calc_all() ;
+    void calc_all() ;
 } ;
 
 #endif
