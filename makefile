@@ -4,11 +4,9 @@ FFTW_LOC = ${HOME}/Install/fftw3
 EIGEN_LOC = ${HOME}/Install/eigen
 CFLAGS     = -I${FFTW_LOC}/include -I${EIGEN_LOC} -O3 -Wno-unused-result -Wno-write-strings
 LIBS      = -lm -lfftw3_mpi -lfftw3 -O3 -L${FFTW_LOC}/lib
+#CFLAGS     = -g -I${FFTW_LOC}/include -I${EIGEN_LOC} -Wno-unused-result -Wno-write-strings
+#LIBS      = -g -lm -lfftw3_mpi -lfftw3 -L${FFTW_LOC}/lib
 
-#CC 	   = icpc 
-#FFTW_LOC = ${HOME}/Install/fftw3a-threaded
-#CFLAGS     = -O3 -openmp -I${FFTW_LOC}/include
-#LIBS      = -openmp -O3 -lfftw3_threads -lfftw3 -lpthread -L${FFTW_LOC}/lib
 
 #############################################################################
 # nothing should be changed below here
@@ -20,7 +18,7 @@ SRCS = main.cpp array_utils.cpp die.cpp  random.cpp grid_utils.cpp \
 			 mpi_utils.cpp communicate_utils.cpp angles.cpp \
 			 orientation_utils.cpp ms_forces.cpp \
 			 pair_style.cpp pair_style_gaussian.cpp \
-			 molecule.cpp field_component.cpp \
+			 molecule.cpp molecule_homopolymer.cpp field_component.cpp \
        
        
 			 

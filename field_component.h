@@ -1,3 +1,5 @@
+#ifndef _FIELD_COMP
+#define _FIELD_COMP
 
 class FieldComponent {
   public:
@@ -6,3 +8,5 @@ class FieldComponent {
     FieldComponent(int) ;
     ~FieldComponent() ;
 } ;
+
+#endif
