@@ -6,6 +6,7 @@
 Gaussian::Gaussian(double Ao, double sigma, int alloc_size, FieldComponent A, FieldComponent B) :
   PairStyle(alloc_size, A, B) {
 
+  printf("Setting up Gaussian pair style...") ;fflush(stdout) ;
   int i , j;
   double k2, kv[Dim] ;
 
@@ -26,5 +27,6 @@ Gaussian::Gaussian(double Ao, double sigma, int alloc_size, FieldComponent A, Fi
 
   this->setup_virial() ;
 
+  printf("done!\n"); fflush(stdout) ;
 }
 

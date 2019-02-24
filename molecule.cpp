@@ -4,7 +4,7 @@
 Molecule::Molecule( int sites_per_molec ) {
 
   this->Ns = sites_per_molec ;
-  comp = ( int* ) calloc( sites_per_molec, sizeof(int) ) ;
+  field_type = ( int* ) calloc( sites_per_molec, sizeof(int) ) ;
 
 }
 

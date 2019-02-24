@@ -6,6 +6,6 @@ Homopolymer::Homopolymer(int sites_per_molec, int component )
 
     int i ;
     for ( i=0 ; i<sites_per_molec ; i++ ) 
-      comp[i] = component ;
+      field_type[i] = component ;
 
 }
