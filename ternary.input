@@ -5,7 +5,7 @@
 1.0 1.0    little_a, bB
 1 0.5 50.0 2.0 semiflex flag, bond_eq, bond_k, lambda
 
-0.005   Volume fraction nanoparticles
+0.0   Volume fraction nanoparticles
 1.5     Rp, nanoparticle radius
 0.5     Xi, nanoparticle interface width
 1       particle_type flag (0 = neutral, 1 = type B)
@@ -13,7 +13,7 @@
 
 3.4863          rho0, in units normalized by diblock properties
 4.0 4.0 1.00  chiAB, chiAC, chiBC
-20.0          kappa
+0.0          kappa
 4.0           mu
 1.0 1.0 1.0   Monomer mobility/diffusion coefficients
 
@@ -35,7 +35,7 @@
 0           stress_frequency
 00       frame_frequency (0=no saving)
 10000    traj_frequency, frequency for writing .lammpstrj file
-2 20000      init_flag (0 = random, 1 = interface sim)
+0 20000      init_flag (0 = random, 1 = interface sim)
 
 
 

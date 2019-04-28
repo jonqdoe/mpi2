@@ -107,6 +107,7 @@ int main( int argc , char** argv ) {
     // Write outputs //
     ///////////////////
     if ( step % print_freq == 0 || step == nsteps-1 ) {
+      forces() ;
       calc_Unb() ;
 
       printf("making field components...\n"); fflush(stdout) ;
@@ -121,6 +122,18 @@ int main( int argc , char** argv ) {
       Gaussian gauss_AB( chiAB/rho0, 2.0*a_squared, ML, A, B ) ;
       printf("done!\nprinting to screen...\n"); fflush(stdout) ;
       cout << "Energied! " << gauss_AB.calc_energy() << " " << U_chiab_gg << endl;
+ 
+      printf("\nBefore calc all: gradwA[0][0]: %lf\n", gradwA[0][0]) ;
+
+      A.ZeroGradient() ;
+      B.ZeroGradient() ;
+      gauss_AB.calc_all() ;
+      printf("all energy: %lf force1[0][0]/rho1[0]: %lf\n", gauss_AB.energy, 
+          gauss_AB.force1[0][0]/gauss_AB.rho1[0]) ;
+      printf("gradwB: %lf force2[0][0]/rho2[0]: %lf\n", gradwB[0][0], 
+          gauss_AB.force2[0][0]/gauss_AB.rho2[0]) ;
+      printf("f1[0][0]: %lf  f2[0][0]: %lf\n", gauss_AB.force1[0][0], gauss_AB.force2[0][0]) ;
+      
       exit(0);
 
       if ( mu != 0.0 ) 

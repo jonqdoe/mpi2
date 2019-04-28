@@ -66,6 +66,7 @@ void PairStyle::calc_all() {
 
 
   // Force calculation
+  // rho2 acting on rho1
   for ( j=0 ; j<Dim ; j++ ) {
     for ( i=0 ; i<ML ; i++ )
       ktmp2[i] = ktmp[i] * this->f_k[j][i] ;
@@ -74,9 +75,22 @@ void PairStyle::calc_all() {
 
     for ( i=0 ; i<ML ; i++ ) {
       force1[j][i] += rho1[i] * tmp[i] ;
-      if ( rho1 != rho2 )
-        force2[j][i] += -rho1[i] * tmp[i] ;
     }
+  }
+
+
+  // Force calculation
+  // rho1 acting on rho2
+  fftw_fwd( rho1, ktmp ) ;
+  for ( j=0 ; j<Dim ; j++ )  {
+
+    for ( i=0 ; i<ML ; i++ )
+      ktmp2[i] = ktmp[i] * this->f_k[j][i] ;
+    
+    fftw_back( ktmp2, tmp ) ;
+    
+    for ( i=0 ; i<ML ; i++ )
+      force2[j][i] += rho2[i] * tmp[i] ;
   }
 
 }

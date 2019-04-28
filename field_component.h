@@ -5,6 +5,7 @@ class FieldComponent {
   public:
     double *rho, **gradU ;
 
+    void ZeroGradient() ;
     FieldComponent(int) ;
     ~FieldComponent() ;
 } ;

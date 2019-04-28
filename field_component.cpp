@@ -9,15 +9,21 @@ FieldComponent::FieldComponent( int alloc_size ) {
   for ( int j=0 ; j<Dim ; j++ ) {
     this->gradU[j] = ( double* ) calloc( alloc_size, sizeof(double) ) ;
   }
+  printf("entering zero_gradient..."); fflush(stdout);
+  this->ZeroGradient() ;
+
+  printf("DONE\n"); fflush(stdout);
 }
 
 
+void FieldComponent::ZeroGradient() {
+
+  int i, j ;
+  for ( j=0 ; j<Dim ; j++ )
+    for ( i=0 ; i<ML ; i++ ) 
+      this->gradU[j][i] = 0.0 ;
+}
+
 
 FieldComponent::~FieldComponent() {
-//  printf("FC here for some reason!\n"); fflush(stdout) ;
-//  free(rho) ;
-//  for ( int j=0 ; j<Dim ; j++ )
-//    free( this->gradU[j] ) ;
-//
-//  free(this->gradU) ;
 }
