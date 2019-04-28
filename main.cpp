@@ -112,6 +112,7 @@ int main( int argc , char** argv ) {
 
       printf("making field components...\n"); fflush(stdout) ;
       FieldComponent A(ML), B(ML) ;
+      FieldComponent Fields[5] { ML, ML, ML, ML, ML } ;
       printf("done!\nDefining field components...\n"); fflush(stdout) ;
       for ( i=0 ; i<ML ; i++ ) {
         A.rho[i] = rho[0][i] ;
