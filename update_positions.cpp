@@ -5,8 +5,6 @@ void calc_Dweights( void ) ;
 int remove_particles(int,int*,int,int*);
 void swap_particles( void ) ;
 void swap_ghosts( void ) ;
-void particle_orientations( void ) ;
-void particle_Stensor( void ) ;
 
 
 void update_positions() {
@@ -22,13 +20,6 @@ void update_positions() {
 
     double dsq = Diff[ tp[i] ] * delt ;
 
-    // Interface binding force for NPs //
-    if ( tp[ id ] == 2 && step < interface_bind_steps ) {
-      f[id][0] = 25.0 * ( L[0]/2.0 - x[id][0] ) ;
-      if ( step < 25 )
-        for ( j=0 ; j<Dim ; j++ )
-          f[id][j] = 0.0 ;
-    }
 
     // Move the particles, keep them in the box //
     for ( j=0 ; j<Dim ; j++ ) 
@@ -58,10 +49,6 @@ void update_positions() {
   }//for ( i=0:ns_loc
   
 
-  if ( mu != 0.0 ) {
-    particle_orientations() ;
-  }
-
 
 
   ///////////////////////////////////////////////////////
@@ -87,9 +74,6 @@ void update_positions() {
   }
 
 
-  // Calculate particle S tensors
-  if ( mu != 0.0 )
-    particle_Stensor() ;
 
 
 

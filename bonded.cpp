@@ -105,7 +105,7 @@ void bonds_init( ) {
         if ( ind < Nda )
           bond_coeff[ ind ][ n_bonds[ind] ] = 3.0 ;
         else
-          bond_coeff[ ind ][ n_bonds[ind] ] = 3.0/bB_squared ;
+          bond_coeff[ ind ][ n_bonds[ind] ] = 3.0 ;
         n_bonds[ind]++ ;
  
         bonded_to[ id2 ][ n_bonds[id2] ] = ind ;
@@ -113,7 +113,7 @@ void bonds_init( ) {
         if ( id2 < Nda )
           bond_coeff[ id2 ][ n_bonds[id2] ] = 3.0 ;
         else
-          bond_coeff[ id2 ][ n_bonds[id2] ] = 3.0/bB_squared ;
+          bond_coeff[ id2 ][ n_bonds[id2] ] = 3.0 ;
         n_bonds[id2]++ ;
       }
       
@@ -154,12 +154,12 @@ void bonds_init( ) {
 
         bonded_to[ ind ][ n_bonds[ind] ] = id2 ;
         bond_eq[ ind ][ n_bonds[ind] ] = 0.0 ;
-        bond_coeff[ ind ][ n_bonds[ind] ] = 3.0 /bB_squared;
+        bond_coeff[ ind ][ n_bonds[ind] ] = 3.0 ;
         n_bonds[ind]++ ;
         
         bonded_to[ id2 ][ n_bonds[id2] ] = ind ;
         bond_eq[ id2 ][ n_bonds[id2] ] = 0.0 ;
-        bond_coeff[ id2 ][ n_bonds[id2] ] = 3.0 / bB_squared;
+        bond_coeff[ id2 ][ n_bonds[id2] ] = 3.0 ;
         n_bonds[id2]++ ;
       }
       

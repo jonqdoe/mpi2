@@ -265,12 +265,6 @@ void forces() {
   }
 
  
-
-  ////////////////////////////
-  // Call the charge forces // 
-  ////////////////////////////
-  if ( Lb > 0.0 )
-    charge_forces() ;
   
  
   ////////////////////////////
@@ -282,11 +276,6 @@ void forces() {
     angles() ;
 
 
-  
-  if ( mu != 0.0 ) {
-    calc_S_conv_uG() ;
-    ms_forces() ;
-  }
 
 
   if ( nprocs > 1 )

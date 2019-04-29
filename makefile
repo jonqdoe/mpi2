@@ -14,9 +14,8 @@ LIBS      = -lm -lfftw3_mpi -lfftw3 -O3 -L${FFTW_LOC}/lib
 SRCS = main.cpp array_utils.cpp die.cpp  random.cpp grid_utils.cpp \
 			 fftw_mpi_wrappers.cpp initialize.cpp config_utils.cpp io_utils.cpp \
 			 update_positions.cpp forces.cpp integ_utils.cpp read_input.cpp \
-			 bonded.cpp calc_unb.cpp  charge_forces.cpp anneal_utils.cpp \
+			 bonded.cpp calc_unb.cpp  anneal_utils.cpp \
 			 mpi_utils.cpp communicate_utils.cpp angles.cpp \
-			 orientation_utils.cpp ms_forces.cpp \
 			 pair_style.cpp pair_style_gaussian.cpp \
 			 molecule.cpp molecule_homopolymer.cpp field_component.cpp \
        

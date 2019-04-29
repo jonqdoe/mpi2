@@ -3,7 +3,6 @@
 
 void spline_get_weights( double , double , double* ) ;
 void add_segment( int ) ;
-void add_S_to_grid( void ) ;
 void zero_fields( void ) ;
 
 
@@ -37,9 +36,6 @@ void charge_grid( ) {
     add_segment( id ) ;
   }
 
-
-  if ( mu != 0.0 ) 
-    add_S_to_grid() ;
 
 
   for ( i=0 ; i<ML ; i++ ) {
@@ -173,32 +169,23 @@ void add_segment( int id ) {
           W3 = W[0][ix] * W[1][iy] * W[2][iz] / gvol ;
   
           if ( id < nsD && tp[id] == 0 ) // A block of diblock 
-            rhoda[ Mindex ] += W3 / CG_ratio ;
+            rhoda[ Mindex ] += W3  ;
 
           else if ( id < nsD && tp[id] == 1 )  // B block of diblock
-            rhodb[ Mindex ] += W3 / CG_ratio ;
+            rhodb[ Mindex ] += W3  ;
 
           else if ( id < ( nsD + nsA ) ) // A homopolymers 
-            rhoha[ Mindex ] += W3 / CG_ratio ;
+            rhoha[ Mindex ] += W3  ;
 
           else if ( id < ( nsD + nsA + nsB ) ) // B hompolymers
-            rhohb[ Mindex ] += W3 / CG_ratio ;
+            rhohb[ Mindex ] += W3  ;
 
           else if ( id < ( nsD + nsA + nsB + nsC ) ) // C hompolymers
-            rhohc[ Mindex ] += W3 / CG_ratio ;
+            rhohc[ Mindex ] += W3  ;
 
           else // Nanoparticles
-            rhop[ Mindex ] += W3 / CG_ratio ;
+            rhop[ Mindex ] += W3  ;
  
-          // Charge density //
-          if ( Lb != 0.0 ) {
-            if ( id < nsD && tp[id] == 1 && Zb != 0.0 )  // Entire B block charged
-              rhoq[ Mindex ] += Zb * W3 / CG_ratio ;
-            else if ( id < nsD && id%(Nda + Ndb) == Nda ) // First B monomer on each diblock
-              rhoq[ Mindex ] += Zb1 * W3 / CG_ratio ;
-            else if ( ( id >= (nsD + nsA + nsB ) ) && ( id < ( nsD + nsA + nsB + nsC ) ) ) // C component
-              rhoq[ Mindex ] += Zc * W3 / CG_ratio ;
-          }
 
           grid_inds[ id ][ grid_ct ] = Mindex ;
           grid_W[ id ][ grid_ct ] = W3 ;
@@ -257,27 +244,18 @@ void add_segment( int id ) {
         W3 = W[0][ix] * W[1][iy] / gvol ;
           
         if ( id < nsD && tp[id] == 0 )
-          rhoda[ Mindex ] += W3 / CG_ratio ;
+          rhoda[ Mindex ] += W3  ;
         else if ( id < nsD && tp[id] == 1 )
-          rhodb[ Mindex ] += W3 / CG_ratio ;
+          rhodb[ Mindex ] += W3  ;
         else if ( id < ( nsD + nsA ) )
-          rhoha[ Mindex ] += W3 / CG_ratio ;
+          rhoha[ Mindex ] += W3  ;
         else if ( id < ( nsD + nsA + nsB ) )
-          rhohb[ Mindex ] += W3 / CG_ratio ;
+          rhohb[ Mindex ] += W3  ;
         else if ( id < ( nsD + nsA + nsB + nsC ) )
-          rhohc[ Mindex ] += W3 / CG_ratio ;
+          rhohc[ Mindex ] += W3  ;
         else
-          rhop[ Mindex ] += W3 / CG_ratio ;
+          rhop[ Mindex ] += W3  ;
  
-        // Charge density //
-        if ( Lb != 0.0 ) {
-          if ( id < nsD && tp[id] == 1 && Zb != 0.0 )  // Entire B block charged
-            rhoq[ Mindex ] += Zb * W3 / CG_ratio ;
-          else if ( id < nsD && id%(Nda + Ndb) == Nda ) // First B monomer on each diblock
-            rhoq[ Mindex ] += Zb1 * W3 / CG_ratio ;
-          else if ( ( id >= (nsD + nsA + nsB ) ) && ( id < ( nsD + nsA + nsB + nsC ) ) ) // C component
-            rhoq[ Mindex ] += Zc * W3 / CG_ratio ;
-        }
 
   
         grid_inds[ id ][ grid_ct ] = Mindex ;
@@ -386,7 +364,7 @@ void zero_fields() {
       rho[j][i] = 0.0 ;
 
   for ( i=0 ; i<ML ; i++ ) {
-    rhoda[i] = rhoha[i] = rhodb[i] = rhohb[i] = rhohc[i] = rhop[i] = smrhop[i] = rhoq[i] = 0.0 ;
+    rhoda[i] = rhoha[i] = rhodb[i] = rhohb[i] = rhohc[i] = rhop[i] = smrhop[i] = 0.0 ;
     if ( mu != 0.0 ) {
       for ( j=0 ; j<Dim ; j++ )
         for ( k=0 ; k<Dim ; k++ )

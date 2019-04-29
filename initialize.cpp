@@ -11,8 +11,6 @@ void swap_ghosts( void ) ;
 void find_my_particles( void ) ;
 void bonds_init( void ) ;
 void angle_init( void ) ;
-void particle_orientations( void ) ;
-void particle_Stensor( void ) ;
 
 
 void initialize() {
@@ -77,29 +75,11 @@ void initialize() {
   //rho0 = C * double( Nda + Ndb ) / Rg3 ;
 
 
-  nD = int( ( 1.0 - phiHA - phiHB - phiHC - phiP ) * rho0 * V / ( Nda + Ndb ) * CG_ratio ) ;
-  nA = int( phiHA * rho0 * V / Nha * CG_ratio ) ;
-  nB = int( phiHB * rho0 * V / Nhb * CG_ratio ) ;
-  // Uncharged system //
-  if ( Lb == 0.0 || (Zb1 == 0.0 && Zb == 0.0 && Zc == 0.0 ) ) {
-    nC = int( phiHC * rho0 * V / Nhc * CG_ratio ) ;
-  }
+  nD = int( ( 1.0 - phiHA - phiHB - phiHC - phiP ) * rho0 * V / ( Nda + Ndb ) ) ;
+  nA = int( phiHA * rho0 * V / Nha ) ;
+  nB = int( phiHB * rho0 * V / Nhb ) ;
+  nC = int( phiHC * rho0 * V / Nhc ) ;
 
-  // Charged system //
-  else {
-    if ( Zb1 * Zc > 0.0 && Zb * Zc > 0.0 ) 
-      die("Charge of C not opposite of B!\n");
-
-    Nhc = 1 ;
-
-    // Assumes all B monomers carry charge of Zb //
-    if ( Zb != 0.0 )
-      nC = int( -double( nD * Ndb + nB * Nhb ) * Zb / Zc ) ;
-
-    // Assumes only first monomer of B block of diblock  charries charge //
-    else
-      nC = int( -double( nD * Zb1 ) / Zc ) ;
-  }
 
 
   Vp = rho0 ;
@@ -111,7 +91,7 @@ void initialize() {
   Diff[2] = 1.0 / Vp ;
   
 
-  nP = int( phiP * rho0 * V / Vp * CG_ratio ) ;
+  nP = int( phiP * rho0 * V / Vp ) ;
 
   nsD = nD * (Nda + Ndb) ;
   nsA = nA * Nha ;
@@ -121,7 +101,7 @@ void initialize() {
   if ( myrank == 0 ) 
     printf("Input rho0: %lf , " , rho0 ) ;
 
-  rho0 = ( nD * (Nda + Ndb ) + nA * Nha + nB * Nhb + nC * Nhc + nP * Vp ) / V / CG_ratio ;
+  rho0 = ( nD * (Nda + Ndb ) + nA * Nha + nB * Nhb + nC * Nhc + nP * Vp ) / V  ;
   if ( myrank == 0 ) 
     printf("actual rho0: %lf\n" , rho0 ) ;
   if ( myrank == 0 ) 
@@ -184,18 +164,6 @@ void initialize() {
   if ( myrank == 0 ) { cout << "Exchanged ghost particles!\n" ; fflush(stdout) ; }
 
 
-  if ( mu != 0.0 ) {
-    particle_orientations();
-    particle_Stensor();
-    
-    MPI_Barrier(MPI_COMM_WORLD) ;
-    if ( myrank == 0 ) { cout << "Initial orientation properties calc'd\n" ; fflush(stdout) ; }
-//    for ( i=0 ; i<Nda+Ndb ; i++ ) {
-//      printf("%d %lf %lf  S: %lf %lf; %lf %lf\n", i, x[i][0], x[i][1], 
-//          mono_S[i][0][0], mono_S[i][0][1], mono_S[i][1][0], mono_S[i][1][1] ) ;
-//    }
-  }
-
   charge_grid() ;
 
   MPI_Barrier(MPI_COMM_WORLD) ;
@@ -234,11 +202,6 @@ void initialize_potential( ) {
 
     if (eps != 0.0 )
       gamma_sig[i] = V * rho0 * exp( -(mdr-Rp-2.0)*(mdr-Rp-2.0)/Xi ) ;
-  }
-  // Define the charge smearing function in Fourier space //
-  for ( i=0; i<ML ; i++ ) {
-    k2 = get_k( i, kv ) ;
-    qhhat[i] = exp( -k2 * qsmear * qsmear / 2.0 ) ;
   }
 
 
@@ -455,16 +418,10 @@ void allocate( ) {
   rhoda = ( double* ) calloc( ML , sizeof( double ) ) ;
   rhodb = ( double* ) calloc( ML , sizeof( double ) ) ;
   rhop = ( double* ) calloc( ML , sizeof( double ) ) ;
-  qhhat = ( double* ) calloc( ML , sizeof( double ) ) ;
   gammaP = ( double* ) calloc( ML , sizeof( double ) ) ;
   smrhop = ( double* ) calloc( ML , sizeof( double ) ) ;
 
   mem_use += 8 * ML * sizeof( double ) ; 
-  
-  rhoq = ( double* ) calloc( ML , sizeof( double ) ) ;
-  psi = ( double* ) calloc( ML , sizeof( double ) ) ;
-  
-  mem_use += 2 * ML * sizeof( double ) ; 
   
 
 
@@ -493,7 +450,6 @@ void allocate( ) {
     gradwC[j] = ( double* ) calloc( ML , sizeof( double ) ) ;
     gradwP[j] = ( double* ) calloc( ML , sizeof( double ) ) ;
     
-    Efield[j] = ( double* ) calloc( ML , sizeof( double ) ) ;
   }
 
   mem_use += Dim * ML * 8 * sizeof( double ) ;

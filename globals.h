@@ -20,7 +20,7 @@ using namespace Eigen ;
 #define pow4(x) ((x)*(x)*(x)*(x))
 #define min(A,B) ((A)<(B) ? (A) : (B) )
 
-#define Dim 3
+#define Dim 2
 
 
 #ifndef MAIN
@@ -32,15 +32,14 @@ double **x, **xtmp, **f , *tmp, **grid_W, V, L[Dim], dx[Dim], gvol, Lh[Dim],
        Ubond , Uchi, Ukappa, Ptens[Dim][Dim], Pvir , phiHA, phiHB, phiHC,
        *rhoha, *rhohb, *rhohc, *rhoda, *rhodb , *rhot, *rhop, *smrhop,
        **rhoha_t, **rhohc_t, **rhohb_t, **rhoda_t, **rhodb_t , **rhop_t,
-       CG_ratio, Stress_bonds[Dim][Dim],
+       Stress_bonds[Dim][Dim],
        ***sts_buf , Rg, Rg3, phiP, Rp, Xi, Vp, *gammaP,
        *gradwA[Dim], *gradwB[Dim], *gradwP[Dim], *gradwC[Dim],
        *uG, *grad_uG[Dim], *uP, *grad_uP[Dim], *uPG, *grad_uPG[Dim] , mem_use,
        U_chiab_gg, U_chi_pg, U_chi_pp, U_kappa_gg, U_kappa_pg, U_kappa_pp,
        U_chibc, U_chiac,
-       *phiA, *Dweights, Zb1, Zb, Zc, Lb, qsmear,
-       *rhoq, **rhoq_t, *qhhat, *psi, **psi_t, *Efield[Dim], *anneal_chi,
-       a_squared , bB_squared, *Tg,
+       *phiA, *Dweights, 
+       *anneal_chi, a_squared ,
        z_min, z_max, send_buff, **rec_N_x, **rec_S_x, **send_S_x, **send_N_x,
        **bond_coeff, **bond_eq, 
        **angle_coeff, semiflex_k, semiflex_req, semiflex_lam, Uangle,
@@ -63,7 +62,7 @@ int nstot, *tp, nC, Nhc, nA, nB, nD, Nha, Nhb, Nda, Ndb, nP,
     Sbound_ct, Nbound_ct, *rec_N_inds, *rec_S_inds, total_ghost, *ghost_inds,
     *n_bonds, **bonded_to,
     semiflex, *n_angles, **angle_first, **angle_mid, **angle_end, n_tot_angles, init_flag,
-    *local_flag, interface_bind_steps ;
+    *local_flag ;
 
 
 #ifndef MAIN

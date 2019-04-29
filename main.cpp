@@ -192,8 +192,6 @@ int main( int argc , char** argv ) {
       if ( nP > 0.0 ) 
         write_grid_data( "rhop" , rhop ) ;
 
-      if ( Lb > 0.0 )
-        write_grid_data( "rhoq", rhoq ) ;
 
       if ( step > sample_wait ) {
         for ( i=0 ; i<ML ; i++ )
