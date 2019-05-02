@@ -173,6 +173,7 @@ void initialize() {
 
   MPI_Barrier(MPI_COMM_WORLD) ;
   if ( myrank == 0 ) printf("potentials initialized, written\n") ; fflush( stdout ) ; 
+
 }
 
 
@@ -250,12 +251,8 @@ void initialize_potential( ) {
 //    write_grid_data( nm , grad_uG[j] ) ;
 
     fftw_fwd( grad_uP[j] , grad_uP_hat[j] ) ;
-//    sprintf( nm , "grad_up_%d" , j ) ;
-//    write_grid_data( nm , grad_uP[j] ) ;
 
     fftw_fwd( grad_uPG[j] , grad_uPG_hat[j] ) ;
-//    sprintf( nm , "grad_upg_%d" , j ) ;
-//    write_grid_data( nm , grad_uPG[j] ) ;
 
     if ( eps != 0.0 ) 
       fftw_fwd( grad_uAG[j], grad_uAG_hat[j] ) ;
