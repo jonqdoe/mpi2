@@ -32,11 +32,6 @@ void swap_particles() {
       MPI_Send( send_S_inds, Sbound_ct, MPI_INT, send_to, 707+send_to, MPI_COMM_WORLD ) ;
       mpi_Send_2d( Sbound_ct, Dim, send_S_x, send_to, 808+send_to, MPI_COMM_WORLD ) ;
 
-      // Send orientation vectors if necessary
-      if ( mu != 0.0 ) {
-        extract_from_array( Sbound_ct, send_S_inds, send_S_x, mono_u ) ;
-        mpi_Send_2d( Sbound_ct, Dim, send_S_x, send_to, 828+send_to, MPI_COMM_WORLD ) ;
-      }
     }
 
     if ( send_to == myrank ) {
@@ -53,10 +48,6 @@ void swap_particles() {
         local_flag[ rec_S_inds[i-ns_loc] ] = 1 ;
       }
 
-      if ( mu != 0.0 ) {
-        mpi_Recv_2d( n_S_ghost, Dim, rec_S_x,     send_proc, 828+send_to, MPI_COMM_WORLD ) ;
-        insert_in_array( n_S_ghost, rec_S_inds, rec_S_x, mono_u ) ;
-      }
 
       ns_loc += n_S_ghost ;
 
@@ -82,11 +73,6 @@ void swap_particles() {
       MPI_Send( send_N_inds, Nbound_ct, MPI_INT, send_to, 444+send_to, MPI_COMM_WORLD ) ;
       mpi_Send_2d( Nbound_ct, Dim, send_N_x, send_to, 555+send_to, MPI_COMM_WORLD ) ;
       
-      // Send orientation vectors if necessary
-      if ( mu != 0.0 ) {
-        extract_from_array( Nbound_ct, send_N_inds, send_N_x, mono_u ) ;
-        mpi_Send_2d( Nbound_ct, Dim, send_N_x, send_to, 528+send_to, MPI_COMM_WORLD ) ;
-      }
     }
 
     if ( send_to == myrank ) {
@@ -100,11 +86,6 @@ void swap_particles() {
       for ( i=ns_loc ; i<ns_loc + n_N_ghost ; i++ ) {
         my_inds[i] = rec_N_inds[i-ns_loc] ;
         local_flag[ rec_N_inds[i-ns_loc] ] = 1 ;
-      }
-      
-      if ( mu != 0.0 ) {
-        mpi_Recv_2d( n_N_ghost, Dim, rec_N_x,     send_proc, 528+send_to, MPI_COMM_WORLD ) ;
-        insert_in_array( n_N_ghost, rec_N_inds, rec_N_x, mono_u ) ;
       }
 
       ns_loc += n_N_ghost ;
@@ -416,26 +397,6 @@ void prepare_ghost_index_lists() {
     }
   }
 
-  if ( semiflex ) {
-    for ( i=0 ; i<ns_loc ; i++ ) {
-      int i1 = my_inds[i] ;
-
-      for ( j=0 ; j<n_angles[i1] ; j++ ) {
-        int jid[3], dd ;
-        jid[0] = angle_first[i1][j] ;
-        jid[1] = angle_mid[i1][j] ;
-        jid[2] = angle_end[i1][j] ;
-
-        if ( local_flag[jid[0]] && local_flag[jid[1]] && local_flag[jid[2]] ) 
-          continue ;
-
-        S_flags[i] = 1 ;
-        N_flags[i] = 1 ;
-
-      }// j=0:n_angles[id]
-
-    }// i=0:ns_loc
-  }// if ( semiflex)
 
 
 

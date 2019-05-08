@@ -5,7 +5,7 @@
 void read_anneal( void ) ;
 void set_defaults( void ) ;
 void write_runtime_parameters( void ) ;
-
+void allocate_gaussians( void ) ;
 
 void read_input( void ) {
 
@@ -27,167 +27,8 @@ void read_input( void ) {
     istringstream iss(line) ;
     // Loop over words in line
     while ( iss >> word ) {
-      if ( word == "Nda" ) {
-        string toint ;
-        iss >> toint ;
-        Nda = stoi( toint ) ;
-      }
-      else if ( word == "Ndb" ) {
-        string toint ;
-        iss >> toint ;
-        Ndb = stoi( toint ) ;
-      }
 
-      else if ( word == "phiha" ) {
-        string todouble ;
-        iss >> todouble ;
-        phiHA = stod(todouble) ;
-      }
-      else if ( word == "phihb" ) {
-        string todouble ;
-        iss >> todouble ;
-        phiHB = stod(todouble) ;
-      }
-      else if ( word == "phihc" ) {
-        string todouble ;
-        iss >> todouble ;
-        phiHC = stod(todouble) ;
-      }
-
-      else if ( word == "Nha" ) {
-        string toint ;
-        iss >> toint ;
-        Nha = stoi( toint ) ;
-      }
-      else if ( word == "Nhb" ) {
-        string toint ;
-        iss >> toint ;
-        Nhb = stoi( toint ) ;
-      }
-      else if ( word == "Nhc" ) {
-        string toint ;
-        iss >> toint ;
-        Nhc = stoi( toint ) ;
-      }
-
-      else if ( word == "smear_a" ) {
-        string todouble ;
-        iss >> todouble ;
-        a_squared = stod(todouble) ;
-        a_squared *= a_squared ;
-      }
-
-      else if ( word == "semiflex" ) {
-        string toint ;
-        iss >> toint ;
-        semiflex = stoi( toint ) ;
-      }
-      else if ( word == "semiflex_req" ) {
-        string todouble ;
-        iss >> todouble ;
-        semiflex_req = stod(todouble) ;
-      }
-      else if ( word == "semiflex_k" ) {
-        string todouble ;
-        iss >> todouble ;
-        semiflex_k = stod(todouble) ;
-      }
-      else if ( word == "semiflex_lam" ) {
-        string todouble ;
-        iss >> todouble ;
-        semiflex_lam = stod(todouble) ;
-      }
-
-      else if ( word == "phiP" ) {
-        string todouble ;
-        iss >> todouble ;
-        phiP = stod(todouble) ;
-      }
-      else if ( word == "Rp" ) {
-        string todouble ;
-        iss >> todouble ;
-        Rp = stod(todouble) ;
-      }
-      else if ( word == "Xi" ) {
-        string todouble ;
-        iss >> todouble ;
-        Xi = stod(todouble) ;
-      }
-      else if ( word == "B_partics" ) {
-        string toint ;
-        iss >> toint ;
-        B_partics = stoi( toint ) ;
-      }
-      else if ( word == "eps" ) {
-        string todouble ;
-        iss >> todouble ;
-        eps = stod(todouble) ;
-      }
-
-      else if ( word == "rho0" ) {
-        string todouble ;
-        iss >> todouble ;
-        rho0 = stod(todouble) ;
-      }
-      else if ( word == "chiAB" ) {
-        string todouble ;
-        iss >> todouble ;
-        chiAB = stod(todouble) ;
-      }
-      else if ( word == "chiAC" ) {
-        string todouble ;
-        iss >> todouble ;
-        chiAC = stod(todouble) ;
-      }
-      else if ( word == "chiBC" ) {
-        string todouble ;
-        iss >> todouble ;
-        chiBC = stod(todouble) ;
-      }
-      else if ( word == "kappa" ) {
-        string todouble ;
-        iss >> todouble ;
-        kappa = stod(todouble) ;
-      }
-
-      else if ( word == "DiffA" ) {
-        string todouble ;
-        iss >> todouble ;
-        Diff[0] = stod(todouble) ;
-      }
-      else if ( word == "DiffB" ) {
-        string todouble ;
-        iss >> todouble ;
-        Diff[1] = stod(todouble) ;
-      }
-      else if ( word == "DiffC" ) {
-        string todouble ;
-        iss >> todouble ;
-        Diff[2] = stod(todouble) ;
-      }
-
-      else if ( word == "Lx" ) {
-        string todouble ;
-        iss >> todouble ;
-        L[0] = stod(todouble) ;
-      }
-      else if ( word == "Ly" ) {
-        string todouble ;
-        iss >> todouble ;
-        L[1] = stod(todouble) ;
-      }
-      else if ( word == "Lz" ) {
-        if ( Dim == 2 ) {
-          cout << "Lz parameter ignored for 2D simulation!\n" ;
-        }
-        else {
-          string todouble ;
-          iss >> todouble ;
-          L[2] = stod(todouble) ;
-        }
-      }
-
-      else if ( word == "Nx" ) {
+      if ( word == "Nx" ) {
         string toint ;
         iss >> toint ;
         Nx[0] = stoi( toint ) ;
@@ -265,6 +106,37 @@ void read_input( void ) {
         init_flag = stoi( toint ) ;
       }
 
+      // Gaussian interactions //
+      else if ( word == "n_gaussians" ) {
+        string toint ;
+        iss >> toint ;
+        n_gaussian_pairstyles = stoi( toint ) ;
+        allocate_gaussians() ;
+
+        for ( i=0 ; i<n_gaussian_pairstyles; i++ ) {
+          getline( inp, line ) ;
+          istringstream iss2(line) ;
+
+          string convert ;
+          iss2 >> convert ;
+          if ( convert != "gaussian" ) {
+            die("Error in Gaussian stuff in input file!\n");
+          }
+
+          iss2 >> convert ;
+          gaussian_types[i][0] = stoi( convert ) ;
+          
+          iss2 >> convert ;
+          gaussian_types[i][1] = stoi( convert ) ;
+          
+          iss2 >> convert ;
+          gaussian_prefactor[i] = stod( convert ) ;
+
+          iss2 >> convert ;
+          gaussian_sigma[i] = stod( convert ) ;
+        }
+      }
+
     }//line stream
 
   }//getline()
@@ -279,33 +151,7 @@ void read_input( void ) {
 
 void set_defaults() {
 
-  Nda = 20 ;
-  Ndb = 20 ;
-  phiHA = phiHB = phiHC = 0.0 ;
-  Nha = Nhb = Nhc = 5 ;
-  a_squared = 1.0 ;
-
-  semiflex = 0 ;
-  semiflex_req = 1.0 ;
-  semiflex_k = 10.0 ;
-  semiflex_lam = 1.0 ;
-
-  phiP = 0.0 ;
-  Rp = 1.0 ;
-  Xi = 0.1 ;
-  B_partics = 0 ;
-  eps = 0.0 ;
-
-  rho0 = 5.0 ;
-  chiAB = 0.5 ;
-  chiAC = chiBC = 0.0 ;
-
-  kappa = 10.0 ;
-
-  Diff[0] = Diff[1] = Diff[2] = 1.0 ;
-  
   for (int j=0 ; j<Dim ; j++ ) {
-    L[j] = 20.0 ;
     Nx[j] = 35 ;
   }
 
@@ -330,38 +176,9 @@ void write_runtime_parameters() {
   ofstream otp ;
   otp.open("tild_out.input" ) ;
 
-  otp << "Nda " << Nda << endl;
-  otp << "Ndb " << Ndb << endl;
-  otp << "phiha " << phiHA << endl;
-  otp << "phihb " << phiHB << endl;
-  otp << "phihc " << phiHC << endl;
-  otp << "Nha " << Nha << endl;
-  otp << "Nhb " << Nhb << endl;
-  otp << "Nhc " << Nhc << endl;
-  otp << "smear_a " << sqrt(a_squared) << endl;
-  otp << "semiflex " << semiflex << endl;
-  otp << "semiflex_req " << semiflex_req << endl;
-  otp << "semiflex_k " << semiflex_k << endl;
-  otp << "semiflex_lam " << semiflex_lam << endl;
-  otp << "phiP " << phiP << endl;
-  otp << "Rp " << Rp << endl;
-  otp << "Xi " << Xi << endl;
-  otp << "B_partics " << B_partics << endl;
-  otp << "eps " << eps << endl;
-  otp << "rho0 " << rho0 << endl;
-  otp << "chiAB " << chiAB << endl;
-  otp << "chiAC " << chiAC << endl;
-  otp << "chiBC " << chiBC << endl;
-  otp << "kappa " << kappa << endl;
-  otp << "DiffA " << Diff[0] << endl;
-  otp << "DiffB " << Diff[1] << endl;
-  otp << "DiffC " << Diff[2] << endl;
-  otp << "Lx " << L[0] << endl;
-  otp << "Ly " << L[1] << endl;
   otp << "Nx " << Nx[0] << endl;
   otp << "Ny " << Nx[1] << endl;
   if ( Dim == 3 ) {
-    otp << "Lz " << L[2] << endl;
     otp << "Nz " << endl;
   }
   otp << "delt " << delt << endl;
@@ -375,6 +192,12 @@ void write_runtime_parameters() {
   otp << "frame_freq " << frame_freq << endl;
   otp << "traj_freq " << traj_freq << endl;
   otp << "init_flag " << init_flag << endl;
+
+  otp << "n_gaussians" << n_gaussian_pairstyles << endl;
+  for ( int i=0 ; i<n_gaussian_pairstyles ; i++ ) {
+    otp << "gaussian " << gaussian_types[i][0] << " " << gaussian_types[i][1] \
+      << " " << gaussian_prefactor[i] << " " << gaussian_sigma[i] << endl; 
+  }
 
   otp.close() ;
 }

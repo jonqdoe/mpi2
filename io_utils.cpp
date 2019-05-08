@@ -1,35 +1,5 @@
 #include "globals.h"
 
-void write_stress( ) {
-
-  int i, j, k ;
-
-  FILE *otp ;
-
-  if ( step <= print_freq )
-    otp = fopen( "stress.dat" , "w" ) ;
-  else
-    otp = fopen( "stress.dat" , "a" ) ;
-
-  for ( i=0 ; i<buff_ind ; i++ ) {
-    // Write diagonals first //
-    for ( j=0 ; j<Dim ; j++ )
-      fprintf( otp , "%lf " , sts_buf[i][j][j] ) ;
-
-    for ( j=0 ; j<Dim -1 ; j++ )
-      for ( k=j+1 ; k<Dim ; k++ )
-        fprintf( otp , "%lf " , sts_buf[i][j][k] ) ;
-
-    fprintf( otp , "\n" ) ;
-
-  }
-
-  fclose( otp ) ;
-
-  buff_ind = 0 ;
-
-}
-
 
 void write_kspace_data( const char *lbl , complex<double> *kdt ) {
   int i, j , nn[Dim] ;

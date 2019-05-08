@@ -10,7 +10,6 @@ void write_lammps_traj( void ) ;
 void write_grid( void ) ;
 void forces( void ) ;
 double integrate( double* ) ;
-void write_stress( void ) ;
 void bond_stress( void ) ;
 void calc_Unb( void ) ;
 void anneal_update( void ) ;
@@ -64,32 +63,18 @@ int main( int argc , char** argv ) {
     update_positions() ;
 
 
-    ///////////////////////
-    // Write stress data //
-    ///////////////////////
-    if ( stress_freq > 0 && step % stress_freq == 0 ) {
-      bond_stress() ;
-
-      for ( j=0 ; j<Dim ; j++ ) 
-        for ( k=0 ; k<Dim ; k++ ) 
-          sts_buf[buff_ind][j][k] = Stress_bonds[j][k] ;
-
-      buff_ind++ ;
-    }
-
-
 
     ////////////////////////////////
     // Calculate structure factor //
     ////////////////////////////////
     if ( step > sample_wait && step % sample_freq == 0 ) {
-      fftw_fwd( rho[0] , ktmp ) ;
+      //fftw_fwd( rho[0] , ktmp ) ;
       for ( i=0 ; i<ML ; i++ ) {
         double k2, kv[Dim] ;
         k2 = get_k( i , kv ) ;
-        avg_sk[0][i] += ktmp[i] * conj(ktmp[i]) ;
+        //avg_sk[0][i] += ktmp[i] * conj(ktmp[i]) ;
       }
-      num_averages += 1.0 ;
+      //num_averages += 1.0 ;
     }
 
 
@@ -112,111 +97,64 @@ int main( int argc , char** argv ) {
       forces() ;
       calc_Unb() ;
 
-      printf("making field components...\n"); fflush(stdout) ;
-      FieldComponent A(ML), B(ML) ;
-      FieldComponent Fields[5] { ML, ML, ML, ML, ML } ;
-      printf("done!\nDefining field components...\n"); fflush(stdout) ;
-      for ( i=0 ; i<ML ; i++ ) {
-        A.rho[i] = rho[0][i] ;
-        B.rho[i] = rho[1][i];
-      }
+//      printf("making field components...\n"); fflush(stdout) ;
+//      FieldComponent A(ML), B(ML) ;
+//      FieldComponent Fields[5] ;
+//      printf("done!\nDefining field components...\n"); fflush(stdout) ;
+//
+//      printf("done!\nsetting up Gaussian energy...\n"); fflush(stdout) ;
+//      Gaussian gauss_AB( chiAB/rho0, 2.0*a_squared, ML, A, B ) ;
+//      printf("done!\nprinting to screen...\n"); fflush(stdout) ;
+//      cout << "Energied! " << gauss_AB.calc_energy() << " " << U_chiab_gg << endl;
+// 
+//      printf("\nBefore calc all: gradwA[0][0]: %lf\n", gradwA[0][0]) ;
+//
+//      A.ZeroGradient() ;
+//      B.ZeroGradient() ;
+//      gauss_AB.calc_all() ;
+//      printf("all energy: %lf force1[0][0]/rho1[0]: %lf\n", gauss_AB.energy, 
+//          gauss_AB.force1[0][0]/gauss_AB.rho1[0]) ;
+//      printf("gradwB: %lf force2[0][0]/rho2[0]: %lf\n", gradwB[0][0], 
+//          gauss_AB.force2[0][0]/gauss_AB.rho2[0]) ;
+//      printf("f1[0][0]: %lf  f2[0][0]: %lf\n", gauss_AB.force1[0][0], gauss_AB.force2[0][0]) ;
+//      
+//      exit(0);
 
-      printf("done!\nsetting up Gaussian energy...\n"); fflush(stdout) ;
-      Gaussian gauss_AB( chiAB/rho0, 2.0*a_squared, ML, A, B ) ;
-      printf("done!\nprinting to screen...\n"); fflush(stdout) ;
-      cout << "Energied! " << gauss_AB.calc_energy() << " " << U_chiab_gg << endl;
- 
-      printf("\nBefore calc all: gradwA[0][0]: %lf\n", gradwA[0][0]) ;
-
-      A.ZeroGradient() ;
-      B.ZeroGradient() ;
-      gauss_AB.calc_all() ;
-      printf("all energy: %lf force1[0][0]/rho1[0]: %lf\n", gauss_AB.energy, 
-          gauss_AB.force1[0][0]/gauss_AB.rho1[0]) ;
-      printf("gradwB: %lf force2[0][0]/rho2[0]: %lf\n", gradwB[0][0], 
-          gauss_AB.force2[0][0]/gauss_AB.rho2[0]) ;
-      printf("f1[0][0]: %lf  f2[0][0]: %lf\n", gauss_AB.force1[0][0], gauss_AB.force2[0][0]) ;
-      
-      exit(0);
-
-      if ( mu != 0.0 ) 
-        make_eigenval_map() ;
 
       if ( myrank == 0 ) {
         printf("step %d of %d  Ubond: %lf " , step , nsteps , Ubond ) ;
-        if ( semiflex )
-          printf("Uangle: %lf ", Uangle ) ;
-        
-        if ( chiAB > 0.0 ) 
-          printf("Uchiab: %lf ", U_chiab_gg + U_chi_pg + U_chi_pp) ;
-        
-        if ( chiBC > 0.0 ) 
-          printf("Uchibc: %lf ", U_chibc);
-        
-        if ( chiAC > 0.0 ) 
-          printf("Uchiac: %lf ", U_chiac);
-
-        if ( kappa > 0.0 ) 
-          printf("Ukappa: %lf ", U_kappa_gg + U_kappa_pg + U_kappa_pp ) ;
-        
-        if ( mu != 0.0 )
-          printf("U_ms: %lf lc: %lf", U_ms, lc_order_param ) ;
+//        if ( semiflex )
+//          printf("Uangle: %lf ", Uangle ) ;
+//        
+//        if ( chiAB > 0.0 ) 
+//          printf("Uchiab: %lf ", U_chiab_gg + U_chi_pg + U_chi_pp) ;
+//        
+//        if ( chiBC > 0.0 ) 
+//          printf("Uchibc: %lf ", U_chibc);
+//        
+//        if ( chiAC > 0.0 ) 
+//          printf("Uchiac: %lf ", U_chiac);
+//
+//        if ( kappa > 0.0 ) 
+//          printf("Ukappa: %lf ", U_kappa_gg + U_kappa_pg + U_kappa_pp ) ;
+//        
+//        if ( mu != 0.0 )
+//          printf("U_ms: %lf lc: %lf", U_ms, lc_order_param ) ;
         printf("\n");
         fflush( stdout ) ;
       }
 
       //cout << "Proc " << myrank << " now has " << ns_loc << endl; 
 
-      if ( stress_freq > 0 )
-        write_stress() ;
 
 
-      write_grid_data( "rhoda" , rhoda ) ;
-      write_grid_data( "rhodb" , rhodb ) ;
-      
-      fftw_fwd( rho[0], ktmp ) ;
-      for ( i=0 ; i<ML ; i++ )
-        ktmp[i] = ktmp[i] * conj(ktmp[i]) ;
-      write_kspace_data( "sk", ktmp ) ;
-
-      if ( mu != 0.0 ) 
-        write_Sfield_data( "Sfield", S_field ) ;
-
-      if ( nA > 0.0 )
-        write_grid_data( "rhoha" , rhoha ) ;
-
-      if ( nB > 0.0 )
-        write_grid_data( "rhohb" , rhohb ) ;
-
-      if ( nC > 0.0 )
-        write_grid_data( "rhohc", rhohc ) ;
-
-      if ( nP > 0.0 ) 
-        write_grid_data( "rhop" , rhop ) ;
-
-
-      if ( step > sample_wait ) {
-        for ( i=0 ; i<ML ; i++ )
-          ktmp2[i] = avg_sk[0][i] / num_averages ;
+     // if ( step > sample_wait ) {
+     //   for ( i=0 ; i<ML ; i++ )
+     //     ktmp2[i] = avg_sk[0][i] / num_averages ;
  
-        write_kspace_data( "avg_sk" , ktmp2 ) ;
-      }
+     //   write_kspace_data( "avg_sk" , ktmp2 ) ;
+     // }
 
-
-      if ( myrank == 0 ) {
-        fprintf( otp , "%d %lf %lf %lf " , step , Ubond , U_chiab_gg, U_kappa_gg ) ;
-        if ( chiAC > 0.0 ) 
-          fprintf( otp , "%lf ", U_chiac ) ;
-        if ( chiBC > 0.0 ) 
-          fprintf( otp , "%lf ", U_chibc ) ;
-        if ( semiflex )
-          fprintf( otp , "%lf ", Uangle) ;
-        if ( mu != 0.0 ) 
-          fprintf( otp, "%lf %lf ", U_ms, lc_order_param) ;
-
-        fprintf(otp,"\n");
-        fflush( otp ) ;
-      }
   
     }// if step % print_Freq == 0
     
@@ -227,24 +165,6 @@ int main( int argc , char** argv ) {
     ///////////////////////////////////////
     if ( frame_freq > 0 && step == frame_freq ) {
       char nm[20] ;
-      if ( nA > 0.0 ) {
-        sprintf( nm , "rhoha.frame%d" , step ) ;
-        write_grid_data( nm , rhoha ) ;
-      }
-      if ( nB > 0.0 ) {
-        sprintf( nm , "rhohb.frame%d" , step ) ;
-        write_grid_data( nm , rhohb ) ;
-      }
-      if ( nP > 0.0 ) {
-        sprintf( nm , "rhop.frame%d" , step ) ;
-        write_grid_data( nm , rhop ) ;
-      }
-      if ( nD > 0.0 ) {
-        sprintf( nm , "rhoda.frame%d" , step ) ;
-        write_grid_data( nm , rhoda ) ;
-        sprintf( nm , "rhodb.frame%d" , step ) ;
-        write_grid_data( nm , rhodb ) ;
-      }
 
       frame_freq *= 2 ;
     }

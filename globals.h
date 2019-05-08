@@ -5,6 +5,8 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include "field_component.h"
+#include "pair_style_gaussian.h"
 #include "mpi.h"
 #include "fftw3-mpi.h"
 #include <Eigen/Dense>
@@ -22,6 +24,15 @@ using namespace Eigen ;
 
 #define Dim 2
 
+#ifndef MAIN
+extern
+#endif
+FieldComponent *Components ;
+
+#ifndef MAIN
+extern
+#endif
+Gaussian *Gauss ;
 
 #ifndef MAIN
 extern
@@ -33,7 +44,8 @@ double **x, **xtmp, **f , *tmp, **grid_W, V, L[Dim], dx[Dim], gvol, Lh[Dim],
        *anneal_chi,
        z_min, z_max, send_buff, **rec_N_x, **rec_S_x, **send_S_x, **send_N_x,
        **bond_coeff, **bond_eq, Ubond,
-       **angle_coeff, Uangle ;
+       **angle_coeff, Uangle,
+       *gaussian_prefactor, *gaussian_sigma;
 
 #ifndef MAIN
 extern
@@ -51,7 +63,8 @@ int nstot, *molecID, *tp,
     *n_bonds, **bonded_to, **bond_type, n_total_bonds,
     *n_angles, **angle_first, **angle_mid, **angle_end, **angle_type, n_total_angles, init_flag,
     *local_flag,
-    nbond_types, nangle_types ;
+    nbond_types, nangle_types,
+    n_gaussian_pairstyles, **gaussian_types ;
 
 
 #ifndef MAIN

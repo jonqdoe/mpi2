@@ -3,10 +3,11 @@
 
 class FieldComponent {
   public:
-    double *rho, **gradU ;
+    double *rho, **force ;
 
     void ZeroGradient() ;
-    FieldComponent(int) ;
+    void Initialize(int) ;
+    FieldComponent() ;
     ~FieldComponent() ;
 } ;
 

@@ -9,7 +9,9 @@
 // initialization is performed.
 class Gaussian : public PairStyle {
   public:
-    Gaussian(double, double, int, FieldComponent, FieldComponent ) ;
+    Gaussian() ;
+    ~Gaussian() ;
+    void Initialize_Gaussian(double, double, int, FieldComponent, FieldComponent ) ;
 
 };
 

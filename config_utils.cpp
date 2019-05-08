@@ -1,92 +1,183 @@
 #include "globals.h"
-void charge_grid( void ) ;
-void write_grid_data( const char* , double* ) ;
-
-void random_config( void ) ;
-void interface_config( void ) ;
-void write_gro( void ) ;
-void read_input_conf( FILE* ) ;
-
+void allocate_particles( void ) ;
 void send_all_x_to_root( void ) ;
-int mpi_Bcast_posits( int, int, double**, int, MPI_Comm) ;
 
+void read_config() {
 
-void initialize_configuration( ) {
+  int i, di, ind, ltp;
+  double dx, dy, dz;
+  char tt[120];
 
-  int i, j ;
+  FILE *inp;
+  inp = fopen("input.data" , "r" );
+  if ( inp == NULL ) die("Failed to find input.data!" );
+  
+  fgets( tt, 120 , inp );
+  fgets( tt, 120 , inp );
 
-  if ( myrank == 0 ) {
-    if ( init_flag == 0 ) 
-      random_config() ;
-    else if ( init_flag >= 1 )
-      interface_config() ;
+  fscanf( inp , "%d" , &nstot );      fgets( tt , 120 , inp );
+  fscanf( inp , "%d" , &n_total_bonds );  fgets( tt , 120 , inp );
+  fscanf( inp , "%d" , &n_total_angles );  fgets( tt , 120 , inp );
 
-    FILE *inp ;
-    inp = fopen( "input.lammpstrj" , "r" ) ;
-    if ( inp != NULL ) {
-      read_input_conf( inp ) ;
-      fclose( inp ) ;
-      printf("input.lammpstrj read!\n" ) ;
-    }
+  fgets( tt , 120 , inp );
+
+  fscanf( inp , "%d" , &ntypes );  fgets( tt , 120 , inp );
+  fscanf( inp , "%d" , &nbond_types );  fgets( tt , 120 , inp );
+  fscanf( inp , "%d" , &nangle_types );  fgets( tt , 120 , inp );
+
+  // Read in box shape
+  fgets(tt, 120 , inp );
+  fscanf( inp , "%lf %lf" , &dx , &dy ) ;   fgets( tt, 120 , inp );
+  L[0] = (double) ( dy - dx ) ;
+  fscanf( inp , "%lf %lf" , &dx , &dy ) ;   fgets( tt, 120 , inp );
+  L[1] = (double) ( dy - dx ) ;
+  fscanf( inp , "%lf %lf" , &dx , &dy ) ;   fgets( tt, 120 , inp );
+  if ( Dim > 2 )
+    L[2] = (double) ( dy - dx ) ;
+
+  V = 1.0 ;
+  for ( i=0 ; i<Dim ; i++ ) {
+    Lh[i] = 0.5 * L[i] ;
+    V *= L[i] ;
   }
+  
+  
+  // Allocate memory for positions //
+  allocate_particles();
+  if ( myrank == 0 )
+    printf("Particle memory allocated!\n");
 
-  MPI_Barrier( MPI_COMM_WORLD ) ;
+  fgets(tt, 120 , inp );
 
-  if ( nprocs > 1 ) {
-    mpi_Bcast_posits( nstot, Dim, x, 0, MPI_COMM_WORLD ) ;
-    MPI_Bcast( &(tp[0]), nstot, MPI_INT, 0, MPI_COMM_WORLD ) ;
+  // Read in particle masses
+  fgets(tt, 120 , inp );
+  fgets(tt, 120 , inp );
+  for ( i=0 ; i<ntypes ; i++ ) {
+    fscanf( inp , "%d %lf" , &di , &dx ); fgets( tt, 120, inp );
+    mass[ di-1 ] = ( double ) dx ;
   }
-  
-  MPI_Barrier( MPI_COMM_WORLD ) ;
-
-}
+  fgets( tt, 120, inp );
 
 
+  // Read in atomic positions
+  fgets( tt, 120 , inp );
+  fgets( tt, 120 , inp );
 
-
-
-
-
-void read_input_conf( FILE *ip ) {
-
-
-  int i, j, k, di ;
-  double df ;
-  int rtflag ;
-  char tt[80] ;
-  fgets( tt , 80 , ip ) ;
-  fgets( tt , 80 , ip ) ;
-  fgets( tt , 80 , ip ) ;
-  fscanf( ip , "%d\n" , &di ) ;
-
-  if ( di != nstot ) 
-    die("Number of sites in input.lammpstrj does not match!\n");
-
-  printf("\nUsing positions from input.lammpstrj!\n\n");
-  
-  fgets( tt , 80 , ip ) ;
-
-  fgets( tt , 80 , ip ) ;
-  fgets( tt , 80 , ip ) ;
-  fgets( tt , 80 , ip ) ;
-  
-  fgets( tt , 80 , ip ) ;
 
   for ( i=0 ; i<nstot ; i++ ) {
-    fscanf( ip, "%d", &di ) ;
-    fscanf( ip, "%d", &di ) ;
-    fscanf( ip, "%d", &di ) ;
-    for ( j=0 ; j<Dim ; j++ ) 
-      fscanf( ip , "%lf", &x[i][j] ) ;
+    if ( feof(inp) ) die("Premature end of input.conf!");
 
-    // Read the z position if a 2D simulation
-    for ( j=Dim ; j<3 ; j++ )
-      fscanf( ip , "%lf" , &df ) ;
+    fscanf( inp , "%d %d %d", &ind , &di , &ltp );
+    ind -= 1;
 
-    fgets( tt, 80 , ip ) ;
+    tp[ind] = ltp-1;
+    molecID[ind] = di-1 ;
+
+    for (int  j=0 ; j<Dim ; j++ ) {
+      fscanf( inp, "%lf", &dx ) ;
+      x[ind][j] = dx ;
+    }
+
+    fgets( tt , 120 , inp );
+
   }
+  fgets( tt , 120 , inp );
+
+
+  // Read in bond information
+  fgets( tt , 120 , inp );
+  fgets( tt , 120 , inp );
+
+
+  for ( i=0 ; i<n_total_bonds ; i++ ) {
+    fscanf( inp , "%d" , &di );
+    fscanf( inp , "%d" , &di );
+    int b_type = di-1;
+    
+    fscanf( inp , "%d" , &di );
+    int i1 = di-1;
+    
+    fscanf( inp , "%d" , &di );
+    int i2 = di - 1;
+
+    if ( i2 < i1 ) {
+      di = i2 ;
+      i2 = i1 ;
+      i1 = di ;
+    }
+
+    bonded_to[i1][ n_bonds[i1] ] = i2 ;
+    bond_type[i1][ n_bonds[i1] ] = b_type ;
+    n_bonds[i1]++ ;
+
+    bonded_to[i2][ n_bonds[i2] ] = i1 ;
+    bond_type[i2][ n_bonds[i2] ] = b_type ;
+    n_bonds[i2]++ ;
+
+  }
+  fgets( tt , 120 , inp );
+
+
+
+  // Read in angle information
+  fgets( tt , 120 , inp );
+  fgets( tt , 120 , inp );
+  for ( i=0 ; i<n_total_angles ; i++ ) {
+    
+    fscanf( inp , "%d" , &di );
+    fscanf( inp , "%d" , &di );
+    
+    int a_type = di - 1;
+
+    fscanf( inp , "%d" , &di );
+    int i1 = di - 1;
+
+    fscanf( inp , "%d" , &di );
+    int i2 = di - 1;
+
+    fscanf( inp , "%d" , &di );
+    int i3 = di - 1;
+
+    if ( i3 < i1 ) {
+      di = i3 ;
+      i3 = i1 ;
+      i1 = di ;
+    }
+
+    int na = n_angles[i1] ;
+    angle_first[i1][na] = i1 ;
+    angle_mid[i1][na] = i2 ;
+    angle_end[i1][na] = i3 ;
+    angle_type[i1][na] = a_type ;
+    n_angles[i1] += 1 ;
+
+    na = n_angles[i2] ;
+    angle_first[i2][na] = i1 ;
+    angle_mid[i2][na] = i2 ;
+    angle_end[i2][na] = i3 ;
+    angle_type[i2][na] = a_type ;
+    n_angles[i2] += 1 ;
+
+    na = n_angles[i3] ;
+    angle_first[i3][na] = i1 ;
+    angle_mid[i3][na] = i2 ;
+    angle_end[i3][na] = i3 ;
+    angle_type[i3][na] = a_type ;
+    n_angles[i3] += 1 ;
+
+    fgets( tt , 120 , inp );
+
+  }
+ 
+  fclose( inp );
 
 }
+
+
+
+
+
+
 
 
 void write_lammps_traj() {
@@ -108,88 +199,16 @@ void write_lammps_traj() {
     fprintf( otp , "ITEM: ATOMS id type mol x y z\n" ) ;
     ind = 0 ;
     resind = 0 ;
-    for ( k=0 ; k<nD ; k++ ) {
-      for ( m=0 ; m<Nda + Ndb ; m++ ) {
-        fprintf( otp , "%d %d %d", ind+1, tp[ind], resind+1 ) ;
-   
-        for ( j=0 ; j<Dim ; j++ )
-          fprintf( otp , " %lf" , x[ind][j]  ) ;
-        
-        for ( j=Dim ; j<3 ; j++ )
-          fprintf( otp , " %lf" , 0.0 );
-        
-        fprintf( otp , "\n" ) ;
-   
-        ind++;
-      }
-      resind++ ;
+    for ( i=0 ; i<nstot; i++ ) {
+      fprintf( otp, "%d %d %d  ", i+1, tp[i], molecID[i] ) ;
+      for ( j=0 ; j<Dim ; j++ ) 
+        fprintf(otp, "%lf ", x[i][j] ) ;
+
+      for ( j=Dim ; j<3 ; j++ ) 
+        fprintf(otp, "%lf", x[i][j] ) ;
+      fprintf(otp, "\n");
+
     }
-  
-    for ( k=0 ; k<nA ; k++ ) {
-      for ( m=0 ; m<Nha ; m++ ) {
-        fprintf( otp , "%d %d %d", ind+1, tp[ind], resind+1 ) ;
-   
-        for ( j=0 ; j<Dim ; j++ )
-          fprintf( otp , " %lf" , x[ind][j]  ) ;
-        
-        for ( j=Dim ; j<3 ; j++ )
-          fprintf( otp , " %lf" , 0.0 );
-        
-        fprintf( otp , "\n" ) ;
-   
-        ind++;
-      }
-      resind++ ;
-    }
-  
-    for ( k=0 ; k<nB ; k++ ) {
-      for ( m=0 ; m<Nhb ; m++ ) {
-        fprintf( otp , "%d %d %d", ind+1, tp[ind], resind+1 ) ;
-   
-        for ( j=0 ; j<Dim ; j++ )
-          fprintf( otp , " %lf" , x[ind][j]  ) ;
-        
-        for ( j=Dim ; j<3 ; j++ )
-          fprintf( otp , " %lf" , 0.0 );
-        
-        fprintf( otp , "\n" ) ;
-   
-        ind++;
-      }
-      resind++ ;
-    }
-  
-    for ( k=0 ; k<nC ; k++ ) {
-      for ( m=0 ; m<Nhc ; m++ ) {
-        fprintf( otp , "%d %d %d", ind+1, tp[ind], resind+1 ) ;
-   
-        for ( j=0 ; j<Dim ; j++ )
-          fprintf( otp , " %lf" , x[ind][j]  ) ;
-        
-        for ( j=Dim ; j<3 ; j++ )
-          fprintf( otp , " %lf" , 0.0 );
-        
-        fprintf( otp , "\n" ) ;
-   
-        ind++;
-      }
-      resind++ ;
-    }
-  
-    for ( k=0 ; k<nP; k++ ) {
-      fprintf( otp , "%d %d %d", ind+1, tp[ind], resind+1 ) ;
-   
-      for ( j=0 ; j<Dim ; j++ )
-        fprintf( otp , " %lf" , x[ind][j]  ) ;
-      
-      for ( j=Dim ; j<3 ; j++ )
-        fprintf( otp , " %lf" , 0.0 );
-      
-      fprintf( otp , "\n" ) ;
-      ind++ ;
-      resind++ ;
-    }
-   
   
     fclose(otp) ;
 
@@ -200,446 +219,4 @@ void write_lammps_traj() {
 
 
 
-void interface_config() {
-
-  int i, m, j, k, ind = 0, n ;
-
-  cout << "\nSETTING UP INTERFACE CONFIGURATION!!" << endl;
-  double A = 1.0 ;
-  for ( i=1 ; i<Dim; i++)
-    A *= L[i] ;
-  cout << "Diblock areal density: " << double(nD)/A << " ch/b^2 " 
-    << double(nD*(Nda+Ndb-1))/A/6.0 << " ch/Rg^2" << endl << endl;
-
-  // Place the diblocks
-  for ( k=0 ; k<nD ; k++ ) { 
-
-    for ( j=0 ; j<Dim ; j++ )
-      x[ind][j] = ran2() * L[j] ;
-    
-    x[ind][0] = 2.0 * ( ran2() - 0.5 ) + L[0]/2.0 ;
-    
-    // Make two stripes //
-    if ( init_flag == 2 ) {
-      if ( ran2() < 0.5 )
-        x[ind][1] = 0.25 * L[1] * ran2() ;
-      else
-        x[ind][1] = 0.25 * L[1] * ran2() + 0.5 * L[1] ;
-    }
-
-    // Make one stripe //
-    if ( init_flag == 5 ) {
-      if ( Dim == 3 )
-        x[ind][2] = 0.5 * L[2] * ran2() ;
-      else
-        x[ind][1] = 0.5 * L[1] * ran2() ;
-    }
-    
-    // Make three stripes //
-    if ( init_flag == 3 ) {
-      double r2 = ran2() ;
-      if ( r2 < 0.333 )
-        x[ind][1] = 0.167 * L[1] * ran2() ;
-      else if ( r2 < 0.666 )
-        x[ind][1] = 0.167 * L[1] * ran2() + 0.33 * L[1] ;
-      else 
-        x[ind][1] = 0.167 * L[1] * ran2() + 0.66 * L[1] ;
-    }
-
-    // Make four droplets //
-    if ( init_flag == 4 ) {
-      if ( Dim != 3 )
-        die("Cannot use init_flag == 4 in less than 3D!");
-
-      double r2 = ran2() ;
-      if ( r2 < 0.25 ) {
-        x[ind][1] = 0.25 * L[1] * ran2() ;
-        x[ind][2] = 0.25 * L[2] * ran2() ;
-      }
-      else if ( r2 < 0.5 ) {
-        x[ind][1] = 0.25 * L[1] * ran2() + 0.5 * L[1] ;
-        x[ind][2] = 0.25 * L[2] * ran2() ;
-      }
-      else if ( r2 < 0.75 ) {
-        x[ind][1] = 0.25 * L[1] * ran2() ;
-        x[ind][2] = 0.25 * L[2] * ran2() + 0.5 * L[2] ;
-      }
-      else {
-        x[ind][1] = 0.25 * L[1] * ran2() + 0.5 * L[1] ;
-        x[ind][2] = 0.25 * L[2] * ran2() + 0.5 * L[2] ;
-      }
-    }
-
-    tp[ind] = ( Nda > 0 ? 0 : 1 ) ;
-
-    ind++ ;
-      
-    for ( m=1 ; m<Nda ; m++ ) {
-    
-      for ( j=0 ; j<Dim ; j++ ) {
-        x[ind][j] = x[ ind-1 ][ j ] + gasdev2() ;
- 
-        if ( x[ind][j] > L[j] )
-          x[ind][j] -= L[j] ;
-        else if ( x[ind][j] < 0.0 )
-          x[ind][j] += L[j] ;
-      }
- 
-      tp[ ind ] = ( m < Nda ? 0 : 1 ) ;
- 
-      ind++ ;
-      
-    }
-    double rand_u[Dim], mdu = 0.0 ;
-    for ( j=0 ; j<Dim ; j++ ) {
-      rand_u[j] = gasdev2() ;
-      mdu += rand_u[j] * rand_u[j] ;
-    }
-    mdu = 1.0 * sqrt( mdu ) ;
-    if ( rand_u[0] < 0.0 )
-      rand_u[0] *= -1.0 ;
-
-    for ( m=Nda ; m<Nda + Ndb ; m++ ) {
-    
-      for ( j=0 ; j<Dim ; j++ ) {
-        x[ind][j] = x[ ind-1 ][ j ] + semiflex_req * rand_u[j] / mdu ;
- 
-        if ( x[ind][j] > L[j] )
-          x[ind][j] -= L[j] ;
-        else if ( x[ind][j] < 0.0 )
-          x[ind][j] += L[j] ;
-      }
- 
-      tp[ ind ] = ( m < Nda ? 0 : 1 ) ;
- 
-      ind++ ;
-      
-    }
-  }// for n=0:Nd-1
-
-
-  // Random A homopolymers in x < L[0]/2.
-  for ( k=0 ; k<nA ; k++ ) {
-    for ( j=1 ; j<Dim ; j++ ) 
-      x[ind][j] = ran2() * L[j] ;
-    x[ind][0] = ran2()  * L[0]/2.0 ;
-
-    tp[ ind ] = 0 ;
-
-    ind += 1 ;
- 
-    for ( m=1 ; m<Nha ; m++ ) {
-    
-      for ( j=0 ; j<Dim ; j++ ) {
-        x[ind][j] = x[ ind-1 ][ j ] + gasdev2() ;
-
-        if ( x[ind][j] > L[j] )
-          x[ind][j] -= L[j] ;
-        else if ( x[ind][j] < 0.0 )
-          x[ind][j] += L[j] ;
-      }
-
-      tp[ ind ] = 0 ;
-
-      ind++ ;
-    
-    }
-  }
-
-
-  // Random B homopolymers //
-  for ( k=0 ; k<nB ; k++ ) {
-    for ( j=0 ; j<Dim ; j++ ) 
-      x[ind][j] = ran2() * L[j] ;
-
-    tp[ ind ] = 1 ;
-
-    ind += 1 ;
- 
-    for ( m=1 ; m<Nhb ; m++ ) {
-    
-      for ( j=0 ; j<Dim ; j++ ) {
-        x[ind][j] = x[ ind-1 ][ j ] + gasdev2() ;
-
-        if ( x[ind][j] > L[j] )
-          x[ind][j] -= L[j] ;
-        else if ( x[ind][j] < 0.0 )
-          x[ind][j] += L[j] ;
-      }
-
-      tp[ ind ] = 1 ;
-
-      ind++ ;
-    
-    }
-  }
-
-
-  // Random C homopolymers in x > L[0] / 2.
-  for ( k=0 ; k<nC ; k++ ) {
-    for ( j=0 ; j<Dim ; j++ ) 
-      x[ind][j] = ran2() * L[j] ;
-    x[ind][0] = ran2() * L[0]/2.0 + L[0]/2.0 ;
-    
-    tp[ ind ] = 3 ;
-
-    ind += 1 ;
- 
-    for ( m=1 ; m<Nhc ; m++ ) {
-    
-      for ( j=0 ; j<Dim ; j++ ) {
-        x[ind][j] = x[ ind-1 ][ j ] + gasdev2() ;
-
-        if ( x[ind][j] > L[j] )
-          x[ind][j] -= L[j] ;
-        else if ( x[ind][j] < 0.0 )
-          x[ind][j] += L[j] ;
-      }
-
-      tp[ ind ] = 3 ;
-
-      ind++ ;
-    
-    }
-  }
-
-  // Random particle centers //
-  for ( k=0 ; k<nP ; k++ ) {
-    double min_mdr2 = 0.0, dr[Dim], mdr2 ;
-
-    for ( j=0 ; j<Dim ; j++ )
-      x[ind][j] = ran2() * L[j] ;
-    x[ind][0] = 2.0 * ( ran2() - 0.5 ) + L[0]/2.0 ;
-    
-    // Make two stripes //
-    if ( init_flag == 2 ) {
-      if ( ran2() < 0.5 )
-        x[ind][1] = 0.25 * L[1] * ran2() + 0.25 * L[1] ;
-      else
-        x[ind][1] = 0.25 * L[1] * ran2() + 0.75 * L[1] ;
-    }
-    
-    // Make one stripe //
-    if ( init_flag == 5 ) {
-      if ( Dim == 3 )
-        x[ind][2] = 0.5 * L[2] * ran2() + 0.5 * L[2] ;
-      else
-        x[ind][1] = 0.5 * L[1] * ran2() + 0.5 * L[1] ;
-    }
-
-    tp[ ind ] = 2 ;
-
-    min_mdr2 = 34382.0 ;
-    for ( int id2 = ind-k ; id2 < ind ; id2++ ) {
-      mdr2 = pbc_mdr2( x[ind], x[id2], dr ) ;
-      if ( mdr2 < min_mdr2 )
-        min_mdr2 = mdr2 ;
-    }
-
-    if ( k == 0 )
-      ind += 1 ;
-    else if ( min_mdr2 > 2.0 * Rp )
-      ind += 1 ;
-  }
-
-
-  // Assign the labels //
-  for ( i=0 ; i<nstot ; i++ ) {
-    if ( tp[i] == 0 ) 
-      xc[i] = "H" ;
-    else if ( tp[i] == 1 )
-      xc[i] = "He" ;
-    else if ( tp[i] == 2 )
-      xc[i] = "O" ;
-    else if ( tp[i] == 3 )
-      xc[i] = "S" ;
-    else if ( tp[i] == 4 )
-      xc[i] = "N" ;
-    else if ( tp[i] == 5 )
-      xc[i] = "Br" ;
-    else if ( tp[i] == 6 )
-      xc[i] = "C" ;
-    else if ( tp[i] == 7 )
-      xc[i] = "Na" ;
-    else if ( tp[i] == 8 )
-      xc[i] = "P" ;
-    else if ( tp[i] == 9 )
-      xc[i] = "Ca" ;
-  }
-}// interface_config() 
-
-
-void random_config( void ) {
-
-  int i, m, j, k, ind = 0, n ;
-
-
-  for ( k=0 ; k<nD ; k++ ) { 
-    for ( j=0 ; j<Dim ; j++ )
-      x[ind][j] = ran2() * L[j] ;
-    tp[ind] = ( Nda > 0 ? 0 : 1 ) ;
-
-    ind++ ;
-      
-    for ( m=1 ; m<Nda ; m++ ) {
-    
-      for ( j=0 ; j<Dim ; j++ ) {
-        x[ind][j] = x[ ind-1 ][ j ] + gasdev2() ;
- 
-        if ( x[ind][j] > L[j] )
-          x[ind][j] -= L[j] ;
-        else if ( x[ind][j] < 0.0 )
-          x[ind][j] += L[j] ;
-      }
- 
-      tp[ ind ] = ( m < Nda ? 0 : 1 ) ;
- 
-      ind++ ;
-      
-    }
-    double rand_u[Dim], mdu = 0.0 ;
-    for ( j=0 ; j<Dim ; j++ ) {
-      rand_u[j] = gasdev2() ;
-      mdu += rand_u[j] * rand_u[j] ;
-    }
-    mdu = sqrt( mdu ) ;
-
-    for ( m=Nda ; m<Nda + Ndb ; m++ ) {
-    
-      for ( j=0 ; j<Dim ; j++ ) {
-        x[ind][j] = x[ ind-1 ][ j ] + semiflex_req * rand_u[j] / mdu ;
- 
-        if ( x[ind][j] > L[j] )
-          x[ind][j] -= L[j] ;
-        else if ( x[ind][j] < 0.0 )
-          x[ind][j] += L[j] ;
-      }
- 
-      tp[ ind ] = ( m < Nda ? 0 : 1 ) ;
- 
-      ind++ ;
-      
-    }
-  }// for n=0:Nd-1
-
-
-  // Random A homopolymers //
-  for ( k=0 ; k<nA ; k++ ) {
-    for ( j=0 ; j<Dim ; j++ ) 
-      x[ind][j] = ran2() * L[j] ;
-
-    tp[ ind ] = 0 ;
-
-    ind += 1 ;
- 
-    for ( m=1 ; m<Nha ; m++ ) {
-    
-      for ( j=0 ; j<Dim ; j++ ) {
-        x[ind][j] = x[ ind-1 ][ j ] + gasdev2() ;
-
-        if ( x[ind][j] > L[j] )
-          x[ind][j] -= L[j] ;
-        else if ( x[ind][j] < 0.0 )
-          x[ind][j] += L[j] ;
-      }
-
-      tp[ ind ] = 0 ;
-
-      ind++ ;
-    
-    }
-  }
-
-
-  // Random B homopolymers //
-  for ( k=0 ; k<nB ; k++ ) {
-    for ( j=0 ; j<Dim ; j++ ) 
-      x[ind][j] = ran2() * L[j] ;
-
-    tp[ ind ] = 1 ;
-
-    ind += 1 ;
- 
-    for ( m=1 ; m<Nhb ; m++ ) {
-    
-      for ( j=0 ; j<Dim ; j++ ) {
-        x[ind][j] = x[ ind-1 ][ j ] + gasdev2() ;
-
-        if ( x[ind][j] > L[j] )
-          x[ind][j] -= L[j] ;
-        else if ( x[ind][j] < 0.0 )
-          x[ind][j] += L[j] ;
-      }
-
-      tp[ ind ] = 1 ;
-
-      ind++ ;
-    
-    }
-  }
-
-
-  // Random C homopolymers //
-  for ( k=0 ; k<nC ; k++ ) {
-    for ( j=0 ; j<Dim ; j++ ) 
-      x[ind][j] = ran2() * L[j] ;
-    
-    tp[ ind ] = 3 ;
-
-    ind += 1 ;
- 
-    for ( m=1 ; m<Nhc ; m++ ) {
-    
-      for ( j=0 ; j<Dim ; j++ ) {
-        x[ind][j] = x[ ind-1 ][ j ] + gasdev2() ;
-
-        if ( x[ind][j] > L[j] )
-          x[ind][j] -= L[j] ;
-        else if ( x[ind][j] < 0.0 )
-          x[ind][j] += L[j] ;
-      }
-
-      tp[ ind ] = 3 ;
-
-      ind++ ;
-    
-    }
-  }
-
-  // Random particle centers //
-  for ( k=0 ; k<nP ; k++ ) {
-    for ( j=0 ; j<Dim ; j++ )
-      x[ind][j] = ran2() * L[j] ;
-
-    tp[ ind ] = 2 ;
-
-    ind += 1 ;
-  }
-
-
-  // Assign the labels //
-  for ( i=0 ; i<nstot ; i++ ) {
-    if ( tp[i] == 0 ) 
-      xc[i] = "H" ;
-    else if ( tp[i] == 1 )
-      xc[i] = "He" ;
-    else if ( tp[i] == 2 )
-      xc[i] = "O" ;
-    else if ( tp[i] == 3 )
-      xc[i] = "S" ;
-    else if ( tp[i] == 4 )
-      xc[i] = "N" ;
-    else if ( tp[i] == 5 )
-      xc[i] = "Br" ;
-    else if ( tp[i] == 6 )
-      xc[i] = "C" ;
-    else if ( tp[i] == 7 )
-      xc[i] = "Na" ;
-    else if ( tp[i] == 8 )
-      xc[i] = "P" ;
-    else if ( tp[i] == 9 )
-      xc[i] = "Ca" ;
-  }
-  printf("Random config generated!\n") ; fflush( stdout ) ;
-}
 

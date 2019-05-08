@@ -3,8 +3,8 @@
 #include "field_component.h"
 
 
-Gaussian::Gaussian(double Ao, double sigma, int alloc_size, FieldComponent A, FieldComponent B) :
-  PairStyle(alloc_size, A, B) {
+void Gaussian::Initialize_Gaussian(double Ao, double sigma_squared, int alloc_size, FieldComponent A, FieldComponent B) {
+  Initialize_PairStyle(alloc_size, A, B) ;
 
   printf("Setting up Gaussian pair style...") ;fflush(stdout) ;
   int i , j;
@@ -15,9 +15,9 @@ Gaussian::Gaussian(double Ao, double sigma, int alloc_size, FieldComponent A, Fi
   for ( i=0 ; i<alloc_size ; i++ ) {
     k2 = get_k(i, kv ) ;
 
-    this->u_k[i] = Ao * exp( -k2 * sigma / 2.0 ) ;
+    this->u_k[i] = Ao * exp( -k2 * sigma_squared / 2.0 ) ;
     for ( j=0 ; j<Dim ; j++ )
-      this->f_k[j][i] = I * kv[j] * this->u_k[i] ;
+      this->f_k[j][i] = -I * kv[j] * this->u_k[i] ;
 
   }
 
@@ -30,3 +30,11 @@ Gaussian::Gaussian(double Ao, double sigma, int alloc_size, FieldComponent A, Fi
   printf("done!\n"); fflush(stdout) ;
 }
 
+
+Gaussian::Gaussian() {
+
+}
+
+Gaussian::~Gaussian() {
+
+}

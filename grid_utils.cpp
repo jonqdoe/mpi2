@@ -22,7 +22,6 @@ void charge_grid( ) {
   // Add segments to each processors density fields //
   ////////////////////////////////////////////////////
   // Add full-bodied particles //
-
   time_debug_in = time(0);
   for ( i=0 ; i<ns_loc ; i++ ) {
     int id = my_inds[i] ;
@@ -30,6 +29,7 @@ void charge_grid( ) {
   }
   time_debug_out = time(0);
   time_debug_tot_time += time_debug_out - time_debug_in ;
+  
   // Add ghost particles
   for ( i=0 ; i<total_ghost ; i++ ) {
     int id = ghost_inds[i] ;
@@ -37,18 +37,7 @@ void charge_grid( ) {
   }
 
 
-
-  for ( i=0 ; i<ML ; i++ ) {
-    rhot[i] = rhoda[i] + rhodb[i] + rhoha[i] + rhohb[i] + rhohc[i];
-
-    rho[0][i] = rhoda[i] + rhoha[i] ;
-    rho[1][i] = rhodb[i] + rhohb[i] ;
-    rho[2][i] = rhop[i] ;
-    rho[3][i] = rhohc[i] ;
-  }
-
   grid_t_out = time(0) ;
-
   grid_tot_time += ( grid_t_out - grid_t_in ) ;
 }
 
@@ -167,25 +156,10 @@ void add_segment( int id ) {
           }
   
           W3 = W[0][ix] * W[1][iy] * W[2][iz] / gvol ;
-  
-          if ( id < nsD && tp[id] == 0 ) // A block of diblock 
-            rhoda[ Mindex ] += W3  ;
-
-          else if ( id < nsD && tp[id] == 1 )  // B block of diblock
-            rhodb[ Mindex ] += W3  ;
-
-          else if ( id < ( nsD + nsA ) ) // A homopolymers 
-            rhoha[ Mindex ] += W3  ;
-
-          else if ( id < ( nsD + nsA + nsB ) ) // B hompolymers
-            rhohb[ Mindex ] += W3  ;
-
-          else if ( id < ( nsD + nsA + nsB + nsC ) ) // C hompolymers
-            rhohc[ Mindex ] += W3  ;
-
-          else // Nanoparticles
-            rhop[ Mindex ] += W3  ;
  
+
+          Components[ tp[id] ].rho[Mindex] += W3 ;
+
 
           grid_inds[ id ][ grid_ct ] = Mindex ;
           grid_W[ id ][ grid_ct ] = W3 ;
@@ -228,9 +202,6 @@ void add_segment( int id ) {
           continue ;
         }
 
-//        if ( nn[0] == 3 && nn[1] == 16 )
-//          printf("particle %d at %lf %lf on proc %d contributes to nn = [3,16]\n", id, x[id][0], x[id][1], myrank);
-
         Mindex = stack_to_local( nn ) ;
   
         if ( Mindex >= ML ) {
@@ -242,20 +213,9 @@ void add_segment( int id ) {
 
   
         W3 = W[0][ix] * W[1][iy] / gvol ;
-          
-        if ( id < nsD && tp[id] == 0 )
-          rhoda[ Mindex ] += W3  ;
-        else if ( id < nsD && tp[id] == 1 )
-          rhodb[ Mindex ] += W3  ;
-        else if ( id < ( nsD + nsA ) )
-          rhoha[ Mindex ] += W3  ;
-        else if ( id < ( nsD + nsA + nsB ) )
-          rhohb[ Mindex ] += W3  ;
-        else if ( id < ( nsD + nsA + nsB + nsC ) )
-          rhohc[ Mindex ] += W3  ;
-        else
-          rhop[ Mindex ] += W3  ;
- 
+  
+
+        Components[ tp[id] ].rho[Mindex] += W3 ;
 
   
         grid_inds[ id ][ grid_ct ] = Mindex ;
@@ -358,17 +318,10 @@ void spline_get_weights( double dx , double H , double *W ) {
 
 void zero_fields() {
   int i,j,k ;
-  
-  for ( i=0 ; i<ML ; i++ ) 
-    for ( j=0 ; j<ntypes ; j++ ) 
-      rho[j][i] = 0.0 ;
-
-  for ( i=0 ; i<ML ; i++ ) {
-    rhoda[i] = rhoha[i] = rhodb[i] = rhohb[i] = rhohc[i] = rhop[i] = smrhop[i] = 0.0 ;
-    if ( mu != 0.0 ) {
-      for ( j=0 ; j<Dim ; j++ )
-        for ( k=0 ; k<Dim ; k++ )
-          S_field[i][j][k] = 0.0 ;
-    }
+ 
+  for ( i=0 ; i<ntypes ; i++ ) {
+    for ( j=0 ; j<ML ; j++ )
+      Components[i].rho[j] = 0.0 ;
   }
+
 }

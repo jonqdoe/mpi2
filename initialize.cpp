@@ -116,6 +116,14 @@ void initialize() {
 
 void initialize_potential( ) {
 
+  Gauss = new Gaussian[n_gaussian_pairstyles] ;
+  for ( int i=0 ; i<n_gaussian_pairstyles ; i++ ) {
+    Gauss[i].Initialize_Gaussian( gaussian_prefactor[i], 
+        gaussian_sigma[i] * gaussian_sigma[i], 
+        ML,
+        Components[ gaussian_types[i][0] ], 
+        Components[ gaussian_types[i][1] ] ) ;
+  }
 
 }
 
@@ -214,8 +222,6 @@ void allocate_grid( ) {
   int i, j ;
   int rtflag ;
 
-
-
   ktmp = ( complex<double>* ) calloc( ML , sizeof( complex<double> ) ) ;
   ktmp2 = ( complex<double>* ) calloc( ML , sizeof( complex<double> ) ) ;
   tmp = ( double* ) calloc( ML , sizeof( double ) ) ;
@@ -223,5 +229,15 @@ void allocate_grid( ) {
   
   mem_use += 6 * ML * sizeof( double ) ; 
 
+  Components = new FieldComponent[ntypes] ;
+  for ( i=0 ; i<ntypes ; i++ ) 
+    Components[i].Initialize( ML ) ;
+}
 
+void allocate_gaussians() {
+  gaussian_prefactor = ( double* ) calloc( n_gaussian_pairstyles, sizeof(double) ) ;
+  gaussian_sigma = ( double* ) calloc( n_gaussian_pairstyles, sizeof(double) ) ;
+  gaussian_types = ( int** ) calloc( n_gaussian_pairstyles, sizeof( int* ) ) ;
+  for (int i=0 ; i<n_gaussian_pairstyles ; i++ ) 
+    gaussian_types[i] = (int*) calloc( 2, sizeof(int) ) ;
 }

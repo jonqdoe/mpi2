@@ -1,7 +1,8 @@
 #ifndef PAIR_STYLE
 #define PAIR_STYLE
-
+#include <complex>
 #include "field_component.h"
+using namespace std ;
 
 class PairStyle {
   private:
@@ -12,12 +13,13 @@ class PairStyle {
     double *rho1, *rho2, **force1, **force2 ;
     complex<double> *u_k, **f_k, **vir_k ;
 
-    PairStyle( int, FieldComponent, FieldComponent ) ;
+    PairStyle( ) ;
     ~PairStyle() ;
     
-    double calc_energy() ;
+    void Initialize_PairStyle( int, FieldComponent, FieldComponent ) ;
+    double CalcEnergy() ;
     void setup_virial() ;
-    void calc_all() ;
+    void CalcAll() ;
 } ;
 
 #endif

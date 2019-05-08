@@ -5,7 +5,7 @@
 // Constructor, allocates memory for:
 // potential, forces, virial contribution
 // in both r- and k-space
-PairStyle::PairStyle(int alloc_size, FieldComponent A, FieldComponent B ) {
+void PairStyle::Initialize_PairStyle(int alloc_size, FieldComponent A, FieldComponent B ) {
   int n_off_diag = Dim + (Dim*Dim-Dim)/2 ;
 
   printf("setting up pair style!\n"); fflush(stdout) ;
@@ -37,8 +37,8 @@ PairStyle::PairStyle(int alloc_size, FieldComponent A, FieldComponent B ) {
   // Pointers to the two density fields involved in this interaction
   rho1 = A.rho ;
   rho2 = B.rho ;
-  force1 = A.gradU ;
-  force2 = B.gradU ;
+  force1 = A.force ;
+  force2 = B.force ;
   
   printf("Finished setting up pair style!\n"); fflush(stdout) ;
 }
@@ -48,7 +48,7 @@ PairStyle::PairStyle(int alloc_size, FieldComponent A, FieldComponent B ) {
 
 // Calculates the energy, virial, and gradU
 // fields for this pair style.
-void PairStyle::calc_all() {
+void PairStyle::CalcAll() {
   
   int i, j ;
   fftw_fwd( rho2, ktmp ) ;
@@ -104,7 +104,7 @@ void PairStyle::calc_all() {
 // energy = \int dr rho1(r) \int dr' u(r-r') rho2(r')
 // The convolution theorem is used to efficiently evaluate 
 // the integral over r'
-double PairStyle::calc_energy( ) {
+double PairStyle::CalcEnergy( ) {
   
   int i ;
   fftw_fwd( rho2, ktmp ) ;
@@ -174,4 +174,8 @@ PairStyle::~PairStyle() {
   free(f_k) ;
   free(vir) ;
   free(vir_k) ;
+}
+
+PairStyle::PairStyle() {
+
 }
