@@ -17,7 +17,6 @@ void forces() {
 
   charge_grid() ;
 
-
   ///////////////////////////////////////////////
   // Reset the particle forces and grid grad w //
   ///////////////////////////////////////////////
@@ -88,16 +87,17 @@ void forces() {
     for ( j=0 ; j<Dim ; j++ )
       f[id][j] *= gvol ;
   }
+ 
 
  
-  
- 
+  cout << "Entering bonds..." ;
   ////////////////////////////
   // Call the bonded forces //
   ////////////////////////////
   if ( n_total_bonds > 0 )
     bonds() ;
 
+  cout << "done!\n" ;
 
   if ( n_total_angles > 0 ) 
     angles() ;

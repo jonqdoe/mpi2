@@ -43,7 +43,7 @@ double **x, **xtmp, **f , *tmp, **grid_W, V, L[Dim], dx[Dim], gvol, Lh[Dim],
        Stress_bonds[Dim][Dim], mem_use,
        *anneal_chi,
        z_min, z_max, send_buff, **rec_N_x, **rec_S_x, **send_S_x, **send_N_x,
-       **bond_coeff, **bond_eq, Ubond,
+       *bond_coeff, *bond_eq, Ubond,
        **angle_coeff, Uangle,
        *gaussian_prefactor, *gaussian_sigma;
 

@@ -120,6 +120,7 @@ void read_input( void ) {
           string convert ;
           iss2 >> convert ;
           if ( convert != "gaussian" ) {
+            cout << "Read: " << convert << " should be 'gaussian'\n" ;
             die("Error in Gaussian stuff in input file!\n");
           }
 
@@ -135,6 +136,18 @@ void read_input( void ) {
           iss2 >> convert ;
           gaussian_sigma[i] = stod( convert ) ;
         }
+      }//n_gaussians
+
+      else if ( word == "bond" ) {
+        string toint, todouble; 
+        iss >> toint ;
+        int btype = stoi( toint ) ;
+
+        iss >> todouble ;
+        bond_coeff[ btype-1 ] = stod( todouble ) ;
+
+        iss >> todouble ;
+        bond_eq[ btype-1 ] = stod( todouble ) ;
       }
 
     }//line stream
@@ -198,6 +211,9 @@ void write_runtime_parameters() {
     otp << "gaussian " << gaussian_types[i][0] << " " << gaussian_types[i][1] \
       << " " << gaussian_prefactor[i] << " " << gaussian_sigma[i] << endl; 
   }
+
+  for ( int i=0 ; i<nbond_types ; i++ ) 
+    otp << "bond " << i+1 << " " << bond_coeff[i] << " " << bond_eq[i] << endl;
 
   otp.close() ;
 }

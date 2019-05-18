@@ -29,7 +29,7 @@ void charge_grid( ) {
   }
   time_debug_out = time(0);
   time_debug_tot_time += time_debug_out - time_debug_in ;
-  
+
   // Add ghost particles
   for ( i=0 ; i<total_ghost ; i++ ) {
     int id = ghost_inds[i] ;
@@ -214,7 +214,7 @@ void add_segment( int id ) {
   
         W3 = W[0][ix] * W[1][iy] / gvol ;
   
-
+        
         Components[ tp[id] ].rho[Mindex] += W3 ;
 
   

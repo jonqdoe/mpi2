@@ -30,13 +30,14 @@ void initialize() {
   move_minus_comm = move_tot_time = fft_tot_time = grid_tot_time = 0 ;
   force_comm_tot_time = swap_tot_time = swap_build_list_tot_time = 0 ;
   swap_partics_tot_time = swap_ghosts_tot_time = time_debug_tot_time = 0 ;
-
-  read_input() ;
  
   read_config() ;
 
+  read_input() ;
+
 
   mem_use = 0. ;
+  do_anneal = 0 ;
 
   M = 1 ;
   ML = 1 ;
@@ -89,24 +90,28 @@ void initialize() {
   if ( myrank == 0 ) printf("Memory allocated: %lf MB\n" , mem_use / 1.0E6 ) ; 
   
 
-
   find_my_particles() ;
   MPI_Barrier(MPI_COMM_WORLD) ;
   if ( myrank == 0 ) { cout << "Found my particles!\n" ; fflush(stdout) ; }
 
+
+  printf("0: n_bonds[0]: %d [1]: %d\n", n_bonds[0], n_bonds[1]) ;
 
   swap_ghosts() ;
   MPI_Barrier(MPI_COMM_WORLD) ;
   if ( myrank == 0 ) { cout << "Exchanged ghost particles!\n" ; fflush(stdout) ; }
 
 
-  charge_grid() ;
+  printf("0: n_bonds[0]: %d [1]: %d\n", n_bonds[0], n_bonds[1]) ;
 
+  charge_grid() ;
   MPI_Barrier(MPI_COMM_WORLD) ;
   if ( myrank == 0 ) printf("grid charged\n"); fflush(stdout); 
 
-  initialize_potential() ;
 
+  printf("0: n_bonds[0]: %d [1]: %d\n", n_bonds[0], n_bonds[1]) ;
+
+  initialize_potential() ;
   MPI_Barrier(MPI_COMM_WORLD) ;
   if ( myrank == 0 ) printf("potentials initialized, written\n") ; fflush( stdout ) ; 
 
@@ -201,13 +206,10 @@ void allocate_particles() {
 
 
   
-  bond_coeff =  ( double** ) calloc( nbond_types, sizeof( double* ) ) ;
-  bond_eq =     ( double** ) calloc( nbond_types, sizeof( double* ) ) ;
-  for ( i=0 ; i<nbond_types ; i++ ) {
-    bond_coeff[i] = ( double* ) calloc( 5, sizeof( double ) ) ;
-    bond_eq[i] = ( double* ) calloc( 5, sizeof( double ) ) ;
-  }
-  mem_use += nbond_types * 2 * 5 * sizeof(double) ;
+  bond_coeff =  ( double* ) calloc( nbond_types, sizeof( double ) ) ;
+  bond_eq =     ( double* ) calloc( nbond_types, sizeof( double ) ) ;
+  mem_use += nbond_types * 2 * sizeof(double) ;
+
 
   angle_coeff = ( double** ) calloc( nangle_types, sizeof( double* ) ) ;
   for ( i=0 ; i<nangle_types ; i++ ) 

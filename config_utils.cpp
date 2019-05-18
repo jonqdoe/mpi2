@@ -70,8 +70,8 @@ void read_config() {
     fscanf( inp , "%d %d %d", &ind , &di , &ltp );
     ind -= 1;
 
-    tp[ind] = ltp-1;
     molecID[ind] = di-1 ;
+    tp[ind] = ltp-1;
 
     for (int  j=0 ; j<Dim ; j++ ) {
       fscanf( inp, "%lf", &dx ) ;
@@ -79,7 +79,8 @@ void read_config() {
     }
 
     fgets( tt , 120 , inp );
-
+    if ( i == nstot-1 )
+      printf("%lf %lf\n", x[ind][0], x[ind][1] ) ;
   }
   fgets( tt , 120 , inp );
 
@@ -88,6 +89,8 @@ void read_config() {
   fgets( tt , 120 , inp );
   fgets( tt , 120 , inp );
 
+  for ( i=0 ; i<nstot ; i++ )
+    n_bonds[i] = 0 ;
 
   for ( i=0 ; i<n_total_bonds ; i++ ) {
     fscanf( inp , "%d" , &di );

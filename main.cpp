@@ -46,7 +46,6 @@ int main( int argc , char** argv ) {
 
 
 
-
   for ( step = 0 ; step < nsteps ; step++ )  {
 
 
@@ -57,6 +56,7 @@ int main( int argc , char** argv ) {
     ////////////////////
     // Core algorithm //
     ////////////////////
+    cout <<"Entering forces\n" ;
     forces() ;
 
 
