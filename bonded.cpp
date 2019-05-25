@@ -7,10 +7,10 @@ void bonds() {
   double mdr2, mdr, dr[Dim], delr, mf ;
   double ub_loc = 0.0 , utmp ;
 
+
   for ( i=0 ; i<ns_loc ; i++ ) {
     id1 = my_inds[i] ;
 
-    printf("id1: %d n_bonds[id1]: %d\n", id1, n_bonds[id1]);
     for ( j=0 ; j<n_bonds[id1] ; j++ ) {
       id2 = bonded_to[ id1 ][ j ] ;
 
@@ -35,6 +35,7 @@ void bonds() {
       }
 
     }//for ( j=0 ; j<n_bonds ;
+    die("through i=0");
   }// for ( i=0 ; i<ns_loc
 
 

@@ -26,6 +26,7 @@ void charge_grid( ) {
   for ( i=0 ; i<ns_loc ; i++ ) {
     int id = my_inds[i] ;
     add_segment( id ) ;
+
   }
   time_debug_out = time(0);
   time_debug_tot_time += time_debug_out - time_debug_in ;
@@ -98,8 +99,6 @@ void add_segment( int id ) {
     spline_get_weights( gdx , dx[j] , W[j] );
 
   }//for ( j=0 ; j<3...
-
-
 
 
   ////////////////////////////////////////////////////
@@ -193,6 +192,7 @@ void add_segment( int id ) {
  
 
 
+
         // Ensure we're working with a grid location on the current processor
         if ( nn[1] < zstart || nn[1] >= zstart + NxL[1] ) {
           grid_inds[ id ][ grid_ct ] =  -1 ;
@@ -217,9 +217,11 @@ void add_segment( int id ) {
         
         Components[ tp[id] ].rho[Mindex] += W3 ;
 
+        cout << grid_W[id][grid_ct] << " " << id << " " << grid_ct << endl;
   
         grid_inds[ id ][ grid_ct ] = Mindex ;
         grid_W[ id ][ grid_ct ] = W3 ;
+        cout << grid_W[id][grid_ct] << " " << id << " " << grid_ct << endl;
   
         grid_ct++ ;
   

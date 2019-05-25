@@ -35,7 +35,6 @@ void forces() {
   for ( j=0 ; j<ntypes ; j++ ) 
     Components[j].ZeroGradient() ;
 
-
   
   /////////////////////////////////////
   // Calculate the grid-based forces //
@@ -90,14 +89,11 @@ void forces() {
  
 
  
-  cout << "Entering bonds..." ;
   ////////////////////////////
   // Call the bonded forces //
   ////////////////////////////
   if ( n_total_bonds > 0 )
     bonds() ;
-
-  cout << "done!\n" ;
 
   if ( n_total_angles > 0 ) 
     angles() ;
