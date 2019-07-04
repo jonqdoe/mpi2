@@ -15,7 +15,7 @@ void forces() {
   int i,j, m, gind, t1, t2, id ;
 
 
-  charge_grid() ;
+//  charge_grid() ;
 
   ///////////////////////////////////////////////
   // Reset the particle forces and grid grad w //
@@ -32,16 +32,16 @@ void forces() {
   }
  
 
-  for ( j=0 ; j<ntypes ; j++ ) 
-    Components[j].ZeroGradient() ;
+//  for ( j=0 ; j<ntypes ; j++ ) 
+//    Components[j].ZeroGradient() ;
 
 
   
   /////////////////////////////////////
   // Calculate the grid-based forces //
   /////////////////////////////////////
-  for ( j=0 ; j<n_gaussian_pairstyles ; j++ )
-    Gauss[j].CalcAll() ;
+//  for ( j=0 ; j<n_gaussian_pairstyles ; j++ )
+//    Gauss[j].CalcAll() ;
 
 
 

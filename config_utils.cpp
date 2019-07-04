@@ -44,6 +44,7 @@ void read_config() {
   
   // Allocate memory for positions //
   allocate_particles();
+  
   if ( myrank == 0 )
     printf("Particle memory allocated!\n");
 

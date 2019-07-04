@@ -26,6 +26,7 @@ void charge_grid( ) {
   for ( i=0 ; i<ns_loc ; i++ ) {
     int id = my_inds[i] ;
     add_segment( id ) ;
+    //cout << id << " " << n_bonds[0] << endl;
   }
   time_debug_out = time(0);
   time_debug_tot_time += time_debug_out - time_debug_in ;

@@ -51,7 +51,7 @@ void PairStyle::Initialize_PairStyle(int alloc_size, FieldComponent A, FieldComp
 void PairStyle::CalcAll() {
   
   int i, j ;
-  fftw_fwd( rho2, ktmp ) ;
+  fftw_fwd( this->rho2, ktmp ) ;
 
   // Energy calculation 
   for ( i=0 ; i<ML ; i++ ) 
@@ -60,7 +60,7 @@ void PairStyle::CalcAll() {
   fftw_back( ktmp2, tmp ) ;
 
   for ( i=0 ; i<ML ; i++ ) 
-    tmp[i] *= rho1[i] ;
+    tmp[i] *= this->rho1[i] ;
 
   this->energy = integrate(tmp) ;
 
@@ -74,14 +74,14 @@ void PairStyle::CalcAll() {
     fftw_back( ktmp2, tmp ) ;
 
     for ( i=0 ; i<ML ; i++ ) {
-      force1[j][i] += rho1[i] * tmp[i] ;
+      this->force1[j][i] += this->rho1[i] * tmp[i] ;
     }
   }
 
 
   // Force calculation
   // rho1 acting on rho2
-  fftw_fwd( rho1, ktmp ) ;
+  fftw_fwd( this->rho1, ktmp ) ;
   for ( j=0 ; j<Dim ; j++ )  {
 
     for ( i=0 ; i<ML ; i++ )
@@ -90,7 +90,7 @@ void PairStyle::CalcAll() {
     fftw_back( ktmp2, tmp ) ;
     
     for ( i=0 ; i<ML ; i++ )
-      force2[j][i] += rho2[i] * tmp[i] ;
+      this->force2[j][i] += this->rho2[i] * tmp[i] ;
   }
 
 }
@@ -107,7 +107,7 @@ void PairStyle::CalcAll() {
 double PairStyle::CalcEnergy( ) {
   
   int i ;
-  fftw_fwd( rho2, ktmp ) ;
+  fftw_fwd( this->rho2, ktmp ) ;
 
   for ( i=0 ; i<ML ; i++ ) 
     ktmp[i] *= this->u_k[i] ;
@@ -115,7 +115,7 @@ double PairStyle::CalcEnergy( ) {
   fftw_back( ktmp, tmp ) ;
 
   for ( i=0 ; i<ML ; i++ ) 
-    tmp[i] *= rho1[i] ;
+    tmp[i] *= this->rho1[i] ;
 
   this->energy = integrate(tmp) ;
   return this->energy ;
@@ -161,19 +161,19 @@ void PairStyle::setup_virial() {
 
 PairStyle::~PairStyle() {
   printf("PS here for some reason!\n"); fflush(stdout) ;
-  free(u);
-  free(u_k) ;
+  free(this->u);
+  free(this->u_k) ;
 
   for ( int i=0 ; i<ML ; i++ ) {
-    free(f[i]) ;
-    free(f_k[i]) ;
-    free(vir[i]) ;
-    free(vir_k[i]) ;
+    free(this->f[i]) ;
+    free(this->f_k[i]) ;
+    free(this->vir[i]) ;
+    free(this->vir_k[i]) ;
   }
-  free(f) ;
-  free(f_k) ;
-  free(vir) ;
-  free(vir_k) ;
+  free(this->f) ;
+  free(this->f_k) ;
+  free(this->vir) ;
+  free(this->vir_k) ;
 }
 
 PairStyle::PairStyle() {

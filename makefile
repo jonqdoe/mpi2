@@ -2,10 +2,10 @@ CC 	   = mpic++
 #FFTW_LOC = /opt/seas/pkg/gcc/fftw3/mpi/double/3.3.7
 FFTW_LOC = ${HOME}/Install/fftw3
 EIGEN_LOC = ${HOME}/Install/eigen
-CFLAGS     = -I${FFTW_LOC}/include -I${EIGEN_LOC} -O3 -Wno-unused-result -Wno-write-strings
-LIBS      = -lm -lfftw3_mpi -lfftw3 -O3 -L${FFTW_LOC}/lib
-#CFLAGS     = -g -I${FFTW_LOC}/include -I${EIGEN_LOC} -Wno-unused-result -Wno-write-strings
-#LIBS      = -g -lm -lfftw3_mpi -lfftw3 -L${FFTW_LOC}/lib
+#CFLAGS     = -I${FFTW_LOC}/include -I${EIGEN_LOC} -O3 -Wno-unused-result -Wno-write-strings
+#LIBS      = -lm -lfftw3_mpi -lfftw3 -O3 -L${FFTW_LOC}/lib
+CFLAGS     = -g -I${FFTW_LOC}/include -I${EIGEN_LOC} -Wno-unused-result -Wno-write-strings
+LIBS      = -g -lm -lfftw3_mpi -lfftw3 -L${FFTW_LOC}/lib
 
 
 #############################################################################

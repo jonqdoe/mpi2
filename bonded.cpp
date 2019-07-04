@@ -23,6 +23,8 @@ void bonds() {
 
       mdr = sqrt(mdr2) ;
 
+//      cout << j << " " << id2 << " " << btype << endl;
+
       delr = mdr - bond_eq[ btype ] ;
 
       ub_loc += delr * delr * bond_coeff[btype] / 2.0 ;
