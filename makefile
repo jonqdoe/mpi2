@@ -17,7 +17,7 @@ SRCS = main.cpp array_utils.cpp die.cpp  random.cpp grid_utils.cpp \
 			 bonded.cpp calc_unb.cpp  anneal_utils.cpp \
 			 mpi_utils.cpp communicate_utils.cpp angles.cpp \
 			 pair_style.cpp pair_style_gaussian.cpp \
-			 molecule.cpp molecule_homopolymer.cpp field_component.cpp \
+			 field_component.cpp \
        
        
 			 

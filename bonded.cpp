@@ -23,21 +23,18 @@ void bonds() {
 
       mdr = sqrt(mdr2) ;
 
-//      cout << j << " " << id2 << " " << btype << endl;
-
       delr = mdr - bond_eq[ btype ] ;
 
       ub_loc += delr * delr * bond_coeff[btype] / 2.0 ;
       
       mf = bond_coeff[btype] * delr / mdr ;
-      
+
       for ( k=0 ; k<Dim ; k++ ) {
         f[id1][k] -= mf * dr[k] ;
         f[id2][k] += mf * dr[k] ;
       }
 
     }//for ( j=0 ; j<n_bonds ;
-    die("through i=0");
   }// for ( i=0 ; i<ns_loc
 
 

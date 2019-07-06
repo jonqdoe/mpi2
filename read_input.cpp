@@ -12,7 +12,7 @@ void read_input( void ) {
   int i,j;
   double d1 ;
   char tt[80] ;
-  Diff = ( double* ) calloc( 4 , sizeof( double ) ) ;
+  Diff = ( double* ) calloc( ntypes , sizeof( double ) ) ;
 
   set_defaults() ;
 
@@ -106,6 +106,14 @@ void read_input( void ) {
         init_flag = stoi( toint ) ;
       }
 
+      else if ( word == "Diff" ) {
+        string todouble ;
+        for ( int j=0 ; j<ntypes ; j++ ) {
+          iss >> todouble ;
+          Diff[j] = stod( todouble ) ;
+        }
+      }
+
       // Gaussian interactions //
       else if ( word == "n_gaussians" ) {
         string toint ;
@@ -125,10 +133,10 @@ void read_input( void ) {
           }
 
           iss2 >> convert ;
-          gaussian_types[i][0] = stoi( convert ) ;
+          gaussian_types[i][0] = stoi( convert ) - 1 ;
           
           iss2 >> convert ;
-          gaussian_types[i][1] = stoi( convert ) ;
+          gaussian_types[i][1] = stoi( convert ) - 1 ;
           
           iss2 >> convert ;
           gaussian_prefactor[i] = stod( convert ) ;
@@ -168,6 +176,9 @@ void set_defaults() {
     Nx[j] = 35 ;
   }
 
+  for ( int j=0 ; j<ntypes ; j++ ) 
+    Diff[j] = 1.0 ;
+
   delt = 0.002 ;
   pmeorder = 2 ;
   send_buff = 2.5 ;
@@ -206,7 +217,12 @@ void write_runtime_parameters() {
   otp << "traj_freq " << traj_freq << endl;
   otp << "init_flag " << init_flag << endl;
 
-  otp << "n_gaussians" << n_gaussian_pairstyles << endl;
+  otp << "Diff " ;
+  for ( int i=0 ; i<ntypes ; i++ )
+    otp << Diff[i] << " " ;
+  otp << endl;
+
+  otp << "n_gaussians " << n_gaussian_pairstyles << endl;
   for ( int i=0 ; i<n_gaussian_pairstyles ; i++ ) {
     otp << "gaussian " << gaussian_types[i][0] << " " << gaussian_types[i][1] \
       << " " << gaussian_prefactor[i] << " " << gaussian_sigma[i] << endl; 

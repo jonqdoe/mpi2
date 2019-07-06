@@ -56,7 +56,6 @@ int main( int argc , char** argv ) {
     ////////////////////
     // Core algorithm //
     ////////////////////
-    cout <<"Entering forces\n" ;
     forces() ;
 
 

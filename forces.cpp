@@ -15,7 +15,7 @@ void forces() {
   int i,j, m, gind, t1, t2, id ;
 
 
-//  charge_grid() ;
+  charge_grid() ;
 
   ///////////////////////////////////////////////
   // Reset the particle forces and grid grad w //
@@ -32,15 +32,15 @@ void forces() {
   }
  
 
-//  for ( j=0 ; j<ntypes ; j++ ) 
-//    Components[j].ZeroGradient() ;
+  for ( j=0 ; j<ntypes ; j++ ) 
+    Components[j].ZeroGradient() ;
 
   
   /////////////////////////////////////
   // Calculate the grid-based forces //
   /////////////////////////////////////
-//  for ( j=0 ; j<n_gaussian_pairstyles ; j++ )
-//    Gauss[j].CalcAll() ;
+  for ( j=0 ; j<n_gaussian_pairstyles ; j++ )
+    Gauss[j].CalcAll() ;
 
 
 
@@ -59,7 +59,6 @@ void forces() {
 
 
     for ( m=0 ; m < grid_per_partic ; m++ ) {
-
       // Note that in charge_grid(), grid_inds is populated with 
       // indices in the range [0,ML]. 
       // if gind == -1, then grid location is skipped.
@@ -71,15 +70,6 @@ void forces() {
       for ( j=0 ; j<Dim ; j++ ) {
         // This division by rho(r) might be better off pre-calculated
         f[id][j] += Components[ tp[id] ].force[j][gind] / Components[ tp[id] ].rho[gind] ;
-
-        //if ( tp[id] == 0 )
-        //  f[id][j] -= gradwA[ j ][ gind ] * grid_W[id][m] ;
-        //else if ( tp[id] == 1 )
-        //  f[id][j] -= gradwB[ j ][ gind ] * grid_W[id][m] ;
-        //else if ( tp[id] == 2 )
-        //  f[id][j] -= gradwP[ j ][ gind ] * grid_W[id][m] ;
-        //else if ( tp[id] == 3 )
-        //  f[id][j] -= gradwC[ j ][ gind ] * grid_W[id][m] ;
       }
     }
 
@@ -87,7 +77,6 @@ void forces() {
       f[id][j] *= gvol ;
   }
  
-
  
   ////////////////////////////
   // Call the bonded forces //

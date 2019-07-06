@@ -26,6 +26,7 @@ void update_positions() {
       x[id][j] = x[id][j] + dsq * f[id][j] + sqrt( 2.0 * dsq ) * gasdev2() ;
 
 
+
     if ( nprocs > 1 ) {
       // Track the particles that move to adjacent processors //
       if ( x[id][Dim-1] < z_min ) {

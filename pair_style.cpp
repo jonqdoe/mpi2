@@ -11,17 +11,17 @@ void PairStyle::Initialize_PairStyle(int alloc_size, FieldComponent A, FieldComp
   printf("setting up pair style!\n"); fflush(stdout) ;
   size = alloc_size ;
 
-  u = ( double* ) calloc( alloc_size, sizeof(double) ) ;
-  f = ( double** ) calloc( Dim, sizeof(double*) ) ;
-  vir = ( double** ) calloc( n_off_diag, sizeof(double*) ) ;
+  this->u = ( double* ) calloc( alloc_size, sizeof(double) ) ;
+  this->f = ( double** ) calloc( Dim, sizeof(double*) ) ;
+  this->vir = ( double** ) calloc( n_off_diag, sizeof(double*) ) ;
 
-  u_k = ( complex<double>* ) calloc(alloc_size, sizeof( complex<double> ) ) ;
-  f_k = ( complex<double>** ) calloc(Dim, sizeof( complex<double>* ) ) ;
-  vir_k = ( complex<double>** ) calloc(n_off_diag, sizeof( complex<double>* ) ) ;
+  this->u_k = ( complex<double>* ) calloc(alloc_size, sizeof( complex<double> ) ) ;
+  this->f_k = ( complex<double>** ) calloc(Dim, sizeof( complex<double>* ) ) ;
+  this->vir_k = ( complex<double>** ) calloc(n_off_diag, sizeof( complex<double>* ) ) ;
 
   for ( int i=0 ; i<Dim ; i++ ) {
-    f[i] = ( double* ) calloc( alloc_size, sizeof(double) ) ;
-    f_k[i] = ( complex<double>* ) calloc( alloc_size, sizeof(complex<double>) ) ;
+    this->f[i] = ( double* ) calloc( alloc_size, sizeof(double) ) ;
+    this->f_k[i] = ( complex<double>* ) calloc( alloc_size, sizeof(complex<double>) ) ;
   }
 
   total_vir = ( double* ) calloc( n_off_diag, sizeof(double) ) ;
@@ -29,16 +29,16 @@ void PairStyle::Initialize_PairStyle(int alloc_size, FieldComponent A, FieldComp
   // Vir stores the diagonal plus the off-diagonal terms
   // The term in parenthesis (Dim*Dim-Dim) will always be even
   for ( int i=0 ; i<n_off_diag ; i++ ) {
-    vir[i] = ( double* ) calloc( alloc_size , sizeof(double) ) ;
-    vir_k[i] = ( complex<double>* ) calloc( alloc_size , sizeof(complex<double>) ) ;
+    this->vir[i] = ( double* ) calloc( alloc_size , sizeof(double) ) ;
+    this->vir_k[i] = ( complex<double>* ) calloc( alloc_size , sizeof(complex<double>) ) ;
   }
 
 
   // Pointers to the two density fields involved in this interaction
-  rho1 = A.rho ;
-  rho2 = B.rho ;
-  force1 = A.force ;
-  force2 = B.force ;
+  this->rho1 = A.rho ;
+  this->rho2 = B.rho ;
+  this->force1 = A.force ;
+  this->force2 = B.force ;
   
   printf("Finished setting up pair style!\n"); fflush(stdout) ;
 }

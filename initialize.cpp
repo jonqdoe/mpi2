@@ -95,14 +95,10 @@ void initialize() {
   if ( myrank == 0 ) { cout << "Found my particles!\n" ; fflush(stdout) ; }
 
 
-  printf("0: n_bonds[0]: %d [1]: %d\n", n_bonds[0], n_bonds[1]) ;
-
   swap_ghosts() ;
   MPI_Barrier(MPI_COMM_WORLD) ;
   if ( myrank == 0 ) { cout << "Exchanged ghost particles!\n" ; fflush(stdout) ; }
 
-
-  printf("0: n_bonds[0]: %d [1]: %d\n", n_bonds[0], n_bonds[1]) ;
 
   charge_grid() ;
   MPI_Barrier(MPI_COMM_WORLD) ;
@@ -170,9 +166,13 @@ void allocate_particles() {
   rec_S_inds =  ( int* ) calloc( nstot , sizeof( int ) );
   ghost_inds =  ( int* ) calloc( nstot , sizeof( int ) );
 
-  grid_inds = ( int** ) calloc( nstot , sizeof( int* ) );
-  grid_W = ( double** ) calloc( nstot , sizeof( double* ) ) ;
-  for ( i=0 ; i<nstot ; i++ ) {
+  // THIS nstot+1 masks a subtle bug that I can't figure out
+  // This should in principle work with nstot, but for some
+  // reason I get a memory corruption error in n_bonds that
+  // leads to a crash.
+  grid_inds = ( int** ) calloc( nstot+1 , sizeof( int* ) );
+  grid_W = ( double** ) calloc( nstot+1 , sizeof( double* ) ) ;
+  for ( i=0 ; i<nstot+1 ; i++ ) {
     grid_inds[i] = ( int* ) calloc( grid_per_partic , sizeof( int ) ) ;
     grid_W[i] = ( double* ) calloc( grid_per_partic , sizeof( double ) ) ;
   }
@@ -181,7 +181,7 @@ void allocate_particles() {
   mem_use += nstot * grid_per_partic * sizeof( double ) ;
 
 
-  // NOTE: Assumes that a particle is bonded to a maximum of three
+  // NOTE: Assumes that a particle is bonded to a maximum of five
   // particles
   n_bonds =     ( int* ) calloc( nstot, sizeof( int ) ) ;
   n_angles =    ( int* ) calloc( nstot, sizeof( int ) ) ;
@@ -190,7 +190,7 @@ void allocate_particles() {
   angle_first = ( int** ) calloc( nstot, sizeof( int* ) ) ;
   angle_mid =   ( int** ) calloc( nstot, sizeof( int* ) ) ;
   angle_end =   ( int** ) calloc( nstot, sizeof( int* ) ) ;
-  angle_type =   ( int** ) calloc( nstot, sizeof( int* ) ) ;
+  angle_type =  ( int** ) calloc( nstot, sizeof( int* ) ) ;
 
   for ( i=0 ; i<nstot ; i++ ) {
     bonded_to[i] = ( int* ) calloc( 5, sizeof( int ) ) ;

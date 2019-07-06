@@ -21,6 +21,7 @@ void charge_grid( ) {
   ////////////////////////////////////////////////////
   // Add segments to each processors density fields //
   ////////////////////////////////////////////////////
+  
   // Add full-bodied particles //
   time_debug_in = time(0);
   for ( i=0 ; i<ns_loc ; i++ ) {
@@ -188,8 +189,6 @@ void add_segment( int id ) {
         
         if ( nn[1] < 0 ) nn[1] += Nx[1] ;
         else if ( nn[1] >= Nx[1] ) nn[1] -= Nx[1] ;
- 
-
 
 
         // Ensure we're working with a grid location on the current processor
@@ -210,17 +209,14 @@ void add_segment( int id ) {
           die(kill_msg);
         }
 
-  
+
         W3 = W[0][ix] * W[1][iy] / gvol ;
-  
         
         Components[ tp[id] ].rho[Mindex] += W3 ;
 
-        cout << grid_W[id][grid_ct] << " " << id << " " << grid_ct << endl;
-  
+
         grid_inds[ id ][ grid_ct ] = Mindex ;
         grid_W[ id ][ grid_ct ] = W3 ;
-        cout << grid_W[id][grid_ct] << " " << id << " " << grid_ct << endl;
   
         grid_ct++ ;
   

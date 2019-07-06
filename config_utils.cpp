@@ -80,8 +80,6 @@ void read_config() {
     }
 
     fgets( tt , 120 , inp );
-    if ( i == nstot-1 )
-      printf("%lf %lf\n", x[ind][0], x[ind][1] ) ;
   }
   fgets( tt , 120 , inp );
 
@@ -204,12 +202,12 @@ void write_lammps_traj() {
     ind = 0 ;
     resind = 0 ;
     for ( i=0 ; i<nstot; i++ ) {
-      fprintf( otp, "%d %d %d  ", i+1, tp[i], molecID[i] ) ;
+      fprintf( otp, "%d %d %d  ", i+1, tp[i]+1, molecID[i]+1 ) ;
       for ( j=0 ; j<Dim ; j++ ) 
         fprintf(otp, "%lf ", x[i][j] ) ;
 
       for ( j=Dim ; j<3 ; j++ ) 
-        fprintf(otp, "%lf", x[i][j] ) ;
+        fprintf(otp, "%lf", 0.0 ) ;
       fprintf(otp, "\n");
 
     }
