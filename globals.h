@@ -7,6 +7,7 @@
 #include <iostream>
 #include "field_component.h"
 #include "pair_style_gaussian.h"
+#include "pair_style_gauss-erfc.h"
 #include "mpi.h"
 #include "fftw3-mpi.h"
 #include <Eigen/Dense>
@@ -37,6 +38,11 @@ Gaussian *Gauss ;
 #ifndef MAIN
 extern
 #endif
+GaussianErfc *GaussErfc ;
+
+#ifndef MAIN
+extern
+#endif
 double **x, **xtmp, **f , *tmp, **grid_W, V, L[Dim], dx[Dim], gvol, Lh[Dim], 
        **rho , **w ,  *r_dudr , *tmp2, 
        *Diff, delt , Pvir, Ptens[Dim][Dim], Unb, *mass,
@@ -45,7 +51,9 @@ double **x, **xtmp, **f , *tmp, **grid_W, V, L[Dim], dx[Dim], gvol, Lh[Dim],
        z_min, z_max, send_buff, **rec_N_x, **rec_S_x, **send_S_x, **send_N_x,
        *bond_coeff, *bond_eq, Ubond,
        **angle_coeff, Uangle,
-       *gaussian_prefactor, *gaussian_sigma;
+       *gaussian_prefactor, *gaussian_sigma,
+       *gausserfc_prefactor, *gausserfc_sigma, *gausserfc_Rp,
+       *gausserfc_xi ;
 
 #ifndef MAIN
 extern
@@ -64,7 +72,8 @@ int nstot, *molecID, *tp,
     *n_angles, **angle_first, **angle_mid, **angle_end, **angle_type, n_total_angles, init_flag,
     *local_flag,
     nbond_types, nangle_types,
-    n_gaussian_pairstyles, **gaussian_types ;
+    n_gaussian_pairstyles, **gaussian_types,
+    n_gausserfc_pairstyles, **gausserfc_types ;
 
 
 #ifndef MAIN

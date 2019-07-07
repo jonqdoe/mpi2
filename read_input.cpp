@@ -6,6 +6,7 @@ void read_anneal( void ) ;
 void set_defaults( void ) ;
 void write_runtime_parameters( void ) ;
 void allocate_gaussians( void ) ;
+void allocate_gausserfcs( void ) ;
 
 void read_input( void ) {
 
@@ -146,6 +147,46 @@ void read_input( void ) {
         }
       }//n_gaussians
 
+
+      // Gaussian-erfc convolved interaction //
+      else if ( word == "n_gausserfcs") {
+        string toint ;
+        iss >> toint ;
+        n_gausserfc_pairstyles = stoi( toint ) ;
+        allocate_gausserfcs() ;
+
+        for ( i=0 ; i<n_gausserfc_pairstyles; i++ ) {
+          getline( inp, line ) ;
+          istringstream iss2(line) ;
+
+          string convert ;
+          iss2 >> convert ;
+          if ( convert != "gausserfc" ) {
+            cout << "Read: " << convert << " should be 'gausserfc'\n" ;
+            die("Error in GaussErfc stuff in input file!\n");
+          }
+
+          iss2 >> convert ;
+          gausserfc_types[i][0] = stoi( convert ) - 1 ;
+
+          iss2 >> convert ;
+          gausserfc_types[i][1] = stoi( convert ) - 1 ;
+
+          iss2 >> convert ;
+          gausserfc_prefactor[i] = stod( convert ) ;
+
+          iss2 >> convert ;
+          gausserfc_sigma[i] = stod( convert ) ;
+
+          iss2 >> convert ;
+          gausserfc_Rp[i] = stod( convert ) ;
+
+          iss2 >> convert ;
+          gausserfc_xi[i] = stod( convert ) ;
+        }
+      }
+
+
       else if ( word == "bond" ) {
         string toint, todouble; 
         iss >> toint ;
@@ -193,6 +234,8 @@ void set_defaults() {
 
   traj_freq = 1000 ;
   init_flag = 0 ;
+
+  n_gausserfc_pairstyles = 0 ;
 }
 
 
@@ -222,11 +265,21 @@ void write_runtime_parameters() {
     otp << Diff[i] << " " ;
   otp << endl;
 
+
   otp << "n_gaussians " << n_gaussian_pairstyles << endl;
   for ( int i=0 ; i<n_gaussian_pairstyles ; i++ ) {
     otp << "gaussian " << gaussian_types[i][0] << " " << gaussian_types[i][1] \
       << " " << gaussian_prefactor[i] << " " << gaussian_sigma[i] << endl; 
   }
+
+
+  otp << "n_gausserfcs " << n_gausserfc_pairstyles << endl;
+  for ( int i=0 ; i<n_gausserfc_pairstyles ; i++ ) {
+    otp << "gausserfc " << gausserfc_types[i][0] << " " << gausserfc_types[i][1] \
+      << " " << gausserfc_prefactor[i] << " " << gaussian_sigma[i] << " " \
+      << gausserfc_Rp[i] << " " << gausserfc_xi[i] << endl;
+  }
+
 
   for ( int i=0 ; i<nbond_types ; i++ ) 
     otp << "bond " << i+1 << " " << bond_coeff[i] << " " << bond_eq[i] << endl;

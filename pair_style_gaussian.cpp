@@ -31,6 +31,15 @@ void Gaussian::Initialize_Gaussian(double Ao, double sigma_squared, int alloc_si
 }
 
 
+void allocate_gaussians() {
+  gaussian_prefactor = ( double* ) calloc( n_gaussian_pairstyles, sizeof(double) ) ;
+  gaussian_sigma = ( double* ) calloc( n_gaussian_pairstyles, sizeof(double) ) ;
+  gaussian_types = ( int** ) calloc( n_gaussian_pairstyles, sizeof( int* ) ) ;
+  for (int i=0 ; i<n_gaussian_pairstyles ; i++ ) 
+    gaussian_types[i] = (int*) calloc( 2, sizeof(int) ) ;
+}
+
+
 Gaussian::Gaussian() {
 
 }
