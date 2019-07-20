@@ -218,7 +218,7 @@ void set_defaults() {
   }
 
   for ( int j=0 ; j<ntypes ; j++ ) 
-    Diff[j] = 1.0 ;
+    Diff[j] = 1.0 / mass[j] ;
 
   delt = 0.002 ;
   pmeorder = 2 ;

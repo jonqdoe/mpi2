@@ -14,6 +14,9 @@ using namespace std ;
 double ran2( void ) ;
 double gasdev2( void ) ;
 long int idum ;
+double pbc_mdr(double*, double*, double*, double*) ;
+
+int Dim ;
 
 int main(int argc, char** argv ) {
 
@@ -21,20 +24,25 @@ int main(int argc, char** argv ) {
 
   int i, m, j, k, ind = 0, n ;
 
-  double L[3], V, C, Rg, rho0 ;
-  int Dim = 2, Nda = 25, Ndb = 25 ;
-  int ncomps = 1 ;
+  double L[3], V, C, Rg, rho0, Rp = 3.0 ;
+  int Nda = 25, Ndb = 25 ;
+  Dim = 2 ;
+  int ncomps = 2 ;
   int *nmolecs = new int [ncomps] ;
   L[0] = L[1] = 25.0 ;
   L[2] = 7.5 ;
-
+  
   nmolecs[0] = 75 ;
   int *N = new int [ncomps] ;
   N[0] = Nda + Ndb ;
 
+  nmolecs[1] = 1 ;
+  N[1] = 1 ;
+
   int nstot = 0 ;
   for ( i=0 ; i<ncomps ; i++ )
     nstot += N[i] * nmolecs[i] ;
+
 
   double **x = new double*[nstot] ;
   for ( i=0 ; i<nstot; i++ )
@@ -45,11 +53,34 @@ int main(int argc, char** argv ) {
 
 
   ind = 0 ;
+
+  // Place nanoparticles non-overlapping positions first //
+  double mdr2, *dr ;
+  dr = new double[Dim] ;
+  for ( k=0 ; k<nmolecs[1] ; k++ ) {
+    for ( j=0 ; j<Dim ; j++ ) 
+      x[ind][j] = ran2() * L[j] ;
+    tp[ind] = 2 ;
+    mID[ind] = k ;
+
+    double min_dr = 382923323.0 ;
+    for ( j=0 ; j<k ; j++ ) {
+      mdr2 = pbc_mdr( x[ind], x[j], L, dr) ;
+      if ( mdr2 < min_dr )
+        min_dr = mdr2 ;
+    }
+    if ( min_dr > 2.0 * Rp )
+      ind++ ;
+  }
+
+
+
+
   for ( k=0 ; k<nmolecs[0] ; k++ ) { 
     for ( j=0 ; j<Dim ; j++ )
       x[ind][j] = ran2() * L[j] ;
     tp[ind] = ( Nda > 0 ? 0 : 1 ) ;
-    mID[ind] = k ;
+    mID[ind] = k + nmolecs[1] ;
 
     ind++ ;
       
@@ -65,7 +96,7 @@ int main(int argc, char** argv ) {
       }
  
       tp[ ind ] = ( m < Nda ? 0 : 1 ) ;
-      mID[ind] = k ;
+      mID[ind] = k + nmolecs[1] ;
  
       ind++ ;
       
@@ -90,7 +121,7 @@ int main(int argc, char** argv ) {
   otp << nmolecs[0]*(N[0]-1) << " bonds\n";
   otp << "0 angles\n\n" ;
 
-  otp << "2 atom types\n1 bond types\n0 angle types\n\n" ; 
+  otp << "3 atom types\n1 bond types\n0 angle types\n\n" ; 
 
   otp << -L[0]/2.0 << " " << L[0]/2.0 << " xlo xhi\n" ;
   otp << -L[1]/2.0 << " " << L[1]/2.0 << " ylo yhi\n" ;
@@ -100,7 +131,7 @@ int main(int argc, char** argv ) {
     otp << "-5.0 5.0 zlo zhi\n\n" ;
 
   otp << "Masses\n\n" ; 
-  otp << "1 1.0\n2 1.0\n\n" ;
+  otp << "1 1.0\n2 1.0\n3 " << ( Dim == 2 ? PI*Rp*Rp : 4.0*PI*Rp*Rp*Rp/3.0 ) << "\n\n" ;
 
   otp << "Atoms\n\n" ;
 
@@ -120,7 +151,7 @@ int main(int argc, char** argv ) {
   for ( i=0 ; i<ncomps ; i++ ) {
     for ( j=0 ; j<nmolecs[i] ; j++ ) {
       for ( k=0 ; k<N[i]-1 ; k++ ) {
-        otp << ind << " 1 " << j*N[i]+k+1 << " " << j*N[i]+k+2 << endl;
+        otp << ind << " 1 " << j*N[i]+k+1+nmolecs[1] << " " << j*N[i]+k+2+nmolecs[1] << endl;
         ind++ ;
       }
     }
@@ -239,3 +270,16 @@ double gasdev2() {
   }
 }
 
+double pbd_mdr( double *x1, double *x2, double *L, double *dr ) {
+  double mdr2 = 0.0 ;
+  int i ;
+  for ( i=0 ; i<Dim ; i++ ) {
+    dr[i] = x1[i] - x2[i] ;
+    if ( dr[i] > 0.5 * L[i] ) dr[i] -= L[i] ;
+    else if ( dr[i] < -0.5 * L[i] ) dr[i] += L[i] ;
+
+    mdr2 += dr[i] * dr[i] ;
+  }
+
+  return sqrt(mdr2) ;
+}

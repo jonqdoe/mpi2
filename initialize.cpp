@@ -126,6 +126,14 @@ void initialize_potential( ) {
         Components[ gaussian_types[i][1] ] ) ;
   }
 
+  GaussErfc = new GaussianErfc[n_gausserfc_pairstyles] ;
+  for ( int i=0 ; i<n_gausserfc_pairstyles; i++ ) {
+    GaussErfc[i].Initialize_GaussianErfc( gausserfc_prefactor[i], gausserfc_sigma[i],
+        gausserfc_Rp[i], gausserfc_xi[i], ML, 
+        Components[ gausserfc_types[i][0] ], 
+        Components[ gausserfc_types[i][1] ] ) ;
+  }
+
 }
 
 
@@ -170,9 +178,9 @@ void allocate_particles() {
   // This should in principle work with nstot, but for some
   // reason I get a memory corruption error in n_bonds that
   // leads to a crash.
-  grid_inds = ( int** ) calloc( nstot+1 , sizeof( int* ) );
-  grid_W = ( double** ) calloc( nstot+1 , sizeof( double* ) ) ;
-  for ( i=0 ; i<nstot+1 ; i++ ) {
+  grid_inds = ( int** ) calloc( nstot+2 , sizeof( int* ) );
+  grid_W = ( double** ) calloc( nstot+2 , sizeof( double* ) ) ;
+  for ( i=0 ; i<nstot+2 ; i++ ) {
     grid_inds[i] = ( int* ) calloc( grid_per_partic , sizeof( int ) ) ;
     grid_W[i] = ( double* ) calloc( grid_per_partic , sizeof( double ) ) ;
   }
@@ -229,7 +237,7 @@ void allocate_grid( ) {
   tmp = ( double* ) calloc( ML , sizeof( double ) ) ;
   tmp2 = ( double* ) calloc( ML , sizeof( double ) ) ;
   
-  mem_use += 6 * ML * sizeof( double ) ; 
+  mem_use += 4 * ML * sizeof( double ) ; 
 
   Components = new FieldComponent[ntypes] ;
   for ( i=0 ; i<ntypes ; i++ ) 
