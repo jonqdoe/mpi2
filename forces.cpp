@@ -45,6 +45,8 @@ void forces() {
   for ( j=0 ; j<n_gausserfc_pairstyles ; j++ )
     GaussErfc[j].CalcAll() ;
 
+  for ( j=0 ; j<n_erfc2_pairstyles ; j++ )
+    Erfc2[j].CalcAll() ;
 
       
 

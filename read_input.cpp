@@ -7,6 +7,7 @@ void set_defaults( void ) ;
 void write_runtime_parameters( void ) ;
 void allocate_gaussians( void ) ;
 void allocate_gausserfcs( void ) ;
+void allocate_erfc2s( void ) ;
 
 void read_input( void ) {
 
@@ -183,6 +184,41 @@ void read_input( void ) {
 
           iss2 >> convert ;
           gausserfc_xi[i] = stod( convert ) ;
+        }
+      }
+
+
+      else if ( word == "n_erfc2" ) {
+        string toint ;
+        iss >> toint ;
+        n_erfc2_pairstyles = stoi( toint ) ;
+        allocate_erfc2s() ;
+
+        for ( i=0 ; i<n_erfc2_pairstyles ; i++ ) {
+          getline( inp, line ) ;
+          istringstream iss2(line) ;
+
+          string convert ;
+          iss2 >> convert ;
+          if ( convert != "erfc2" ) {
+            cout << "Read: " << convert << " should be 'erfc2'\n";
+            die("Error in Erfc2 stuff in input file!\n");
+          }
+
+          iss2 >> convert ;
+          erfc2_types[i][0] = stoi( convert ) - 1 ;
+
+          iss2 >> convert ;
+          erfc2_types[i][1] = stoi( convert ) - 1 ;
+
+          iss2 >> convert ;
+          erfc2_prefactor[i] = stod( convert ) ;
+
+          iss2 >> convert ;
+          erfc2_Rp[i] = stod( convert ) ;
+
+          iss2 >> convert ;
+          erfc2_xi[i] = stod( convert ) ;
         }
       }
 

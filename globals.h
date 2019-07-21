@@ -8,6 +8,7 @@
 #include "field_component.h"
 #include "pair_style_gaussian.h"
 #include "pair_style_gauss-erfc.h"
+#include "pair_style_erfc2.h"
 #include "mpi.h"
 #include "fftw3-mpi.h"
 #include <Eigen/Dense>
@@ -43,6 +44,12 @@ GaussianErfc *GaussErfc ;
 #ifndef MAIN
 extern
 #endif
+ErfcErfc *Erfc2 ;
+
+
+#ifndef MAIN
+extern
+#endif
 double **x, **xtmp, **f , *tmp, **grid_W, V, L[Dim], dx[Dim], gvol, Lh[Dim], 
        **rho , **w ,  *r_dudr , *tmp2, 
        *Diff, delt , Pvir, Ptens[Dim][Dim], Unb, *mass,
@@ -53,7 +60,8 @@ double **x, **xtmp, **f , *tmp, **grid_W, V, L[Dim], dx[Dim], gvol, Lh[Dim],
        **angle_coeff, Uangle,
        *gaussian_prefactor, *gaussian_sigma,
        *gausserfc_prefactor, *gausserfc_sigma, *gausserfc_Rp,
-       *gausserfc_xi ;
+       *gausserfc_xi,
+       *erfc2_prefactor, *erfc2_Rp, *erfc2_xi ;
 
 #ifndef MAIN
 extern
@@ -73,7 +81,8 @@ int nstot, *molecID, *tp,
     *local_flag,
     nbond_types, nangle_types,
     n_gaussian_pairstyles, **gaussian_types,
-    n_gausserfc_pairstyles, **gausserfc_types ;
+    n_gausserfc_pairstyles, **gausserfc_types,
+    n_erfc2_pairstyles, **erfc2_types ;
 
 
 #ifndef MAIN
