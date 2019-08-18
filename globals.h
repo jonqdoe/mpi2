@@ -24,7 +24,7 @@ using namespace Eigen ;
 #define pow4(x) ((x)*(x)*(x)*(x))
 #define min(A,B) ((A)<(B) ? (A) : (B) )
 
-#define Dim 2
+#define Dim 3
 
 #ifndef MAIN
 extern

@@ -29,6 +29,7 @@ void read_input( void ) {
     istringstream iss(line) ;
     // Loop over words in line
     while ( iss >> word ) {
+      cout << "Read: " << word << endl;
 
       if ( word == "Nx" ) {
         string toint ;
